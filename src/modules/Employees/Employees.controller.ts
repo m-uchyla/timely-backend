@@ -13,7 +13,7 @@ import { Employee as EmployeeEntity } from "./Employee.entity";
 import { CreateEmployeeDto } from "./DTO/create-employee.dto";
 import { UpdateEmployeeDto } from "./DTO/update-employee.dto";
 
-@Controller("services")
+@Controller("employees")
 export class EmployeesController {
   constructor(private readonly svc: EmployeesService) {}
 
