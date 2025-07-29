@@ -19,7 +19,7 @@ export class EmployeesService {
   async findOne(id: number): Promise<Employee> {
     const entity = await this.serviceRepo.findOne({ where: { id } });
     if (!entity) {
-      throw new NotFoundException(`Service with ID ${id} not found`);
+      throw new NotFoundException(`Employee with ID ${id} not found`);
     }
     return entity;
   }
