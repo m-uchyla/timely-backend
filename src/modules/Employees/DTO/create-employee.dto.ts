@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsNotEmpty,
   IsOptional,
+  IsEmail,
 } from "class-validator";
 
 export class CreateEmployeeDto {
