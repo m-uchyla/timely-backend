@@ -13,6 +13,7 @@ export class CreateEmployeeDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsString()
