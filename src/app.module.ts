@@ -4,10 +4,12 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ServicesModule } from "./modules/Services/Services.module";
+import { EmployeesModule } from "./modules/Employees/Employees.module";
 
 @Module({
   imports: [
     ServicesModule,
+    EmployeesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
