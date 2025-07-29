@@ -15,7 +15,7 @@ export class CreateEmployeeDto {
   @IsNotEmpty()
   email: string;
 
-  @IsNumber()
+  @IsString()
   @IsOptional()
   role?: string;
 
