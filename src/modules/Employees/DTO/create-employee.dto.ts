@@ -18,14 +18,6 @@ export class CreateEmployeeDto {
   })
   public lastName: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    description: 'The role of the employee. Optional',
-    example: 'Manager',
-  })
-  public role?: string;
-
   @IsBoolean()
   @IsOptional()
   @ApiProperty({
