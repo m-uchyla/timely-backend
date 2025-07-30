@@ -1,4 +1,3 @@
-import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -15,7 +14,6 @@ const mockServiceRepository = {
 
 describe('ServicesService', () => {
   let service: ServicesService;
-  let repo: Repository<Service>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,7 +27,6 @@ describe('ServicesService', () => {
     }).compile();
 
     service = module.get<ServicesService>(ServicesService);
-    repo = module.get<Repository<Service>>(getRepositoryToken(Service));
   });
 
   it('should be defined', () => {
