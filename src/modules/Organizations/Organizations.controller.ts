@@ -4,7 +4,7 @@ import { UpdateOrganizationDto } from './DTO/update-organization.dto';
 import { Organization as OrganizationEntity } from './Organization.entity';
 import { OrganizationsService } from './Organizations.service';
 
-@Controller('organization')
+@Controller('organizations')
 export class OrganizationsController {
   constructor(private readonly svc: OrganizationsService) {}
 
