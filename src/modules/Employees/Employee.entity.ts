@@ -25,6 +25,6 @@ export class Employee {
   public organizationId: number;
 
   @ManyToOne(() => Organization)
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
   public organization: Organization;
 }

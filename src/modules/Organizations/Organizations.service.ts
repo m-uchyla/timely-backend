@@ -1,6 +1,7 @@
 import { Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../Users/User.entity';
 import { CreateOrganizationDto } from './DTO/create-organization.dto';
 import { UpdateOrganizationDto } from './DTO/update-organization.dto';
 import { Organization } from './Organization.entity';
@@ -10,6 +11,8 @@ export class OrganizationsService {
   constructor(
     @InjectRepository(Organization)
     private readonly organizationRepo: Repository<Organization>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   public async findAll(): Promise<Organization[]> {
@@ -25,12 +28,24 @@ export class OrganizationsService {
   }
 
   public async create(createDto: CreateOrganizationDto): Promise<Organization> {
+    const user = await this.userRepo.findOne({
+      where: { id: createDto.ownerId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${createDto.ownerId} not found`);
+    }
     const entity = this.organizationRepo.create(createDto);
     return this.organizationRepo.save(entity);
   }
 
   public async update(id: number, updateDto: UpdateOrganizationDto): Promise<Organization> {
     const entity = await this.findOne(id);
+    const user = await this.userRepo.findOne({
+      where: { id: updateDto.ownerId },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${updateDto.ownerId} not found`);
+    }
     Object.assign(entity, updateDto);
     return this.organizationRepo.save(entity);
   }

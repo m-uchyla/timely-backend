@@ -6,12 +6,14 @@ import { AppService } from './app.service';
 import { EmployeesModule } from './modules/Employees/Employees.module';
 import { OrganizationsModule } from './modules/Organizations/Organizations.module';
 import { ServicesModule } from './modules/Services/Services.module';
+import { UsersModule } from './modules/Users/Users.module';
 
 @Module({
   imports: [
     ServicesModule,
     EmployeesModule,
     OrganizationsModule,
+    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

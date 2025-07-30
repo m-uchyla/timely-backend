@@ -1,14 +1,13 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrganizationDto {
   @IsString()
   @IsNotEmpty()
   public name: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  @IsEmail()
-  public ownerEmail: string;
+  public ownerId: number;
 
   @IsString()
   @IsOptional()

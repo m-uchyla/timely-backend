@@ -34,6 +34,6 @@ export class Service {
   public organizationId: number;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
   public organization: Organization;
 }

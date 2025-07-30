@@ -9,7 +9,7 @@ export class Organization {
   @Column()
   public name: string;
 
-  @Column()
+  @Column({ nullable: true })
   public description: string;
 
   @Column({ default: true })
@@ -22,9 +22,9 @@ export class Organization {
   public lastModifiedAt: Date;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'ownerEmail', referencedColumnName: 'email' })
+  @JoinColumn({ name: 'ownerId', referencedColumnName: 'id' })
   public owner: User;
 
   @Column()
-  public ownerEmail: string;
+  public ownerId: number;
 }
