@@ -1,23 +1,19 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateEmployeeDto {
+export class CreateOrganizationDto {
   @IsString()
   @IsNotEmpty()
-  public firstName: string;
+  public name: string;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  public lastName: string;
+  public ownerId: number;
 
   @IsString()
   @IsOptional()
-  public role?: string;
+  public description?: string;
 
   @IsBoolean()
   @IsOptional()
   public isActive?: boolean;
-
-  @IsNumber()
-  @IsNotEmpty()
-  public organizationId: number;
 }

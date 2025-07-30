@@ -26,4 +26,8 @@ export class CreateServiceDto {
   @Min(0)
   @IsOptional()
   public cost?: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public organizationId: number;
 }

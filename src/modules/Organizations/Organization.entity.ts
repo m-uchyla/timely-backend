@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Organization } from '../Organizations/Organization.entity';
+import { User } from '../Users/User.entity';
 
 @Entity()
-export class Service {
+export class Organization {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -11,12 +11,6 @@ export class Service {
 
   @Column({ nullable: true })
   public description: string;
-
-  @Column()
-  public durationMinutes: number;
-
-  @Column({ default: 0 })
-  public pausePeriodMinutes: number;
 
   @Column({ default: true })
   public isActive: boolean;
@@ -27,13 +21,10 @@ export class Service {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   public lastModifiedAt: Date;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  public cost: number;
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'ownerId', referencedColumnName: 'id' })
+  public owner: User;
 
   @Column()
-  public organizationId: number;
-
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
-  public organization: Organization;
+  public ownerId: number;
 }

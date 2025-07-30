@@ -1,8 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Organization } from '../Organizations/Organization.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Employee {
+export class User {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -12,6 +11,12 @@ export class Employee {
   @Column()
   public lastName: string;
 
+  @Column({ unique: true })
+  public email: string;
+
+  @Column({ default: 'user' })
+  public role: string;
+
   @Column({ default: true })
   public isActive: boolean;
 
@@ -20,11 +25,4 @@ export class Employee {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   public lastModifiedAt: Date;
-
-  @Column()
-  public organizationId: number;
-
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
-  public organization: Organization;
 }
