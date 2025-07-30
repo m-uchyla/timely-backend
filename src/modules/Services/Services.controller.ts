@@ -15,7 +15,7 @@ import { UpdateServiceDto } from './DTO/update-service.dto';
 import { Service as ServiceEntity } from './Service.entity';
 import { ServicesService } from './Services.service';
 
-@Controller('service')
+@Controller('services')
 export class ServicesController {
   constructor(private readonly svc: ServicesService) {}
 
