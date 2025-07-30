@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -16,6 +17,16 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Swagger setup
+  const config = new DocumentBuilder()
+    .setTitle('Timely API') // Set the title
+    .setDescription('API documentation for the Timely app') // Set the description
+    .setVersion('0.1') // Set the version
+    .addBearerAuth() // Add authentication if needed
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document); // Swagger UI will be available at /api
 
   await app.listen(process.env.PORT ?? 3000);
 }
