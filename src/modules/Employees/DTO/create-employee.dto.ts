@@ -3,7 +3,11 @@ import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from '
 export class CreateEmployeeDto {
   @IsString()
   @IsNotEmpty()
-  public name: string;
+  public firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public lastName: string;
 
   @IsString()
   @IsOptional()
