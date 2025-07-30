@@ -1,28 +1,28 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Service {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
   @Column()
-  name: string;
+  public name: string;
 
   @Column({ nullable: true })
-  description: string;
+  public description: string;
 
   @Column()
-  durationMinutes: number;
+  public durationMinutes: number;
 
   @Column({ default: 0 })
-  pausePeriodMinutes: number;
+  public pausePeriodMinutes: number;
 
   @Column({ default: true })
-  isActive: boolean;
+  public isActive: boolean;
 
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-  createdAt: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  public createdAt: Date;
 
-  @Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
-  cost: number;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  public cost: number;
 }

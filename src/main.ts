@@ -1,7 +1,8 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -13,9 +14,10 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true, // pozwala np. przekonwertować "123" → 123
       },
-    })
+    }),
   );
 
   await app.listen(process.env.PORT ?? 3000);
 }
+// eslint-disable-next-line no-void
 void bootstrap();

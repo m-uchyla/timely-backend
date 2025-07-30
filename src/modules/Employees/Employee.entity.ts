@@ -1,22 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Employee {
   @PrimaryGeneratedColumn()
-  id: number;
+  public id: number;
 
   @Column()
-  name: string;
+  public name: string;
 
   @Column({ unique: true })
-  email: string;
+  public email: string;
 
-  @Column({ default: "user" })
-  role: string;
+  @Column({ default: 'user' })
+  public role: string;
 
   @Column({ default: true })
-  isActive: boolean;
+  public isActive: boolean;
 
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-  createdAt: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  public createdAt: Date;
 }

@@ -1,27 +1,20 @@
-import {
-  IsString,
-  IsBoolean,
-  IsNumber,
-  IsNotEmpty,
-  IsOptional,
-  IsEmail,
-} from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateEmployeeDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  public name: string;
 
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  public email: string;
 
   @IsString()
   @IsOptional()
-  role?: string;
+  public role?: string;
 
   @IsBoolean()
   @IsOptional()
-  isActive?: boolean;
+  public isActive?: boolean;
 }

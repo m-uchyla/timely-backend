@@ -1,36 +1,29 @@
-import {
-  IsString,
-  IsBoolean,
-  IsNumber,
-  Min,
-  IsNotEmpty,
-  IsOptional,
-} from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateServiceDto {
   @IsString()
   @IsNotEmpty()
-  name: string;
+  public name: string;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  public description?: string;
 
   @IsNumber()
   @Min(0)
-  durationMinutes: number;
+  public durationMinutes: number;
 
   @IsNumber()
   @Min(0)
   @IsOptional()
-  pausePeriodMinutes?: number;
+  public pausePeriodMinutes?: number;
 
   @IsBoolean()
   @IsOptional()
-  isActive?: boolean;
+  public isActive?: boolean;
 
   @IsNumber()
   @Min(0)
   @IsOptional()
-  cost?: number;
+  public cost?: number;
 }
