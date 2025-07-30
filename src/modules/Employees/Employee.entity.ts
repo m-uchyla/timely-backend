@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Organization } from '../Organizations/Organization.entity';
 
 @Entity()
 export class Employee {
@@ -6,17 +7,24 @@ export class Employee {
   public id: number;
 
   @Column()
-  public name: string;
+  public firstName: string;
 
-  @Column({ unique: true })
-  public email: string;
-
-  @Column({ default: 'user' })
-  public role: string;
+  @Column()
+  public lastName: string;
 
   @Column({ default: true })
   public isActive: boolean;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   public createdAt: Date;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  public lastModifiedAt: Date;
+
+  @Column()
+  public organizationId: number;
+
+  @ManyToOne(() => Organization)
+  @JoinColumn({ name: 'organizationId' })
+  public organization: Organization;
 }

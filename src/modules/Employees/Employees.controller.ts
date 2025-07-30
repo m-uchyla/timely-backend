@@ -4,7 +4,7 @@ import { UpdateEmployeeDto } from './DTO/update-employee.dto';
 import { Employee as EmployeeEntity } from './Employee.entity';
 import { EmployeesService } from './Employees.service';
 
-@Controller('employees')
+@Controller('employee')
 export class EmployeesController {
   constructor(private readonly svc: EmployeesService) {}
 

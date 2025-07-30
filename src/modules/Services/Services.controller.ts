@@ -1,10 +1,21 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreateServiceDto } from './DTO/create-service.dto';
 import { UpdateServiceDto } from './DTO/update-service.dto';
 import { Service as ServiceEntity } from './Service.entity';
 import { ServicesService } from './Services.service';
 
-@Controller('services')
+@Controller('service')
 export class ServicesController {
   constructor(private readonly svc: ServicesService) {}
 
@@ -19,6 +30,7 @@ export class ServicesController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   public create(@Body() createDto: CreateServiceDto): Promise<ServiceEntity> {
     return this.svc.create(createDto);
   }
@@ -32,6 +44,7 @@ export class ServicesController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.svc.remove(id);
   }

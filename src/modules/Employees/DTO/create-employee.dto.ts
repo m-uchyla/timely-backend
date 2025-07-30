@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateEmployeeDto {
   @IsString()
@@ -6,9 +6,9 @@ export class CreateEmployeeDto {
   public name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
-  public email: string;
+  public email?: string;
 
   @IsString()
   @IsOptional()
@@ -17,4 +17,8 @@ export class CreateEmployeeDto {
   @IsBoolean()
   @IsOptional()
   public isActive?: boolean;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public organizationId: number;
 }

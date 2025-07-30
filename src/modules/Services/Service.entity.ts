@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Organization } from '../Organizations/Organization.entity';
 
 @Entity()
 export class Service {
@@ -23,6 +24,16 @@ export class Service {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   public createdAt: Date;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  public lastModifiedAt: Date;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   public cost: number;
+
+  @Column()
+  public organizationId: number;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organizationId' })
+  public organization: Organization;
 }
