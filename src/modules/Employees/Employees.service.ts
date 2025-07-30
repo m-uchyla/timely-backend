@@ -28,13 +28,13 @@ export class EmployeesService {
   }
 
   public async create(createDto: CreateEmployeeDto): Promise<Employee> {
-    const entity = this.employeeRepo.create(createDto);
     const organization = await this.organizationRepo.findOne({
       where: { id: createDto.organizationId },
     });
     if (!organization) {
       throw new NotFoundException(`Organization with ID ${createDto.organizationId} not found`);
     }
+    const entity = this.employeeRepo.create(createDto);
     return this.employeeRepo.save(entity);
   }
 
