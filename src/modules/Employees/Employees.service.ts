@@ -40,11 +40,13 @@ export class EmployeesService {
 
   public async update(id: number, updateDto: UpdateEmployeeDto): Promise<Employee> {
     const entity = await this.findOne(id);
-    const organization = await this.organizationRepo.findOne({
-      where: { id: updateDto.organizationId },
-    });
-    if (!organization) {
-      throw new NotFoundException(`Organization with ID ${updateDto.organizationId} not found`);
+    if (updateDto.organizationId !== undefined) {
+      const organization = await this.organizationRepo.findOne({
+        where: { id: updateDto.organizationId },
+      });
+      if (!organization) {
+        throw new NotFoundException(`Organization with ID ${updateDto.organizationId} not found`);
+      }
     }
     Object.assign(entity, updateDto);
     return this.employeeRepo.save(entity);
