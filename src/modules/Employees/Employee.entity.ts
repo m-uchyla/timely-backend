@@ -24,7 +24,7 @@ export class Employee {
   @Column()
   public organizationId: number;
 
-  @ManyToOne(() => Organization)
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
   public organization: Organization;
 }
