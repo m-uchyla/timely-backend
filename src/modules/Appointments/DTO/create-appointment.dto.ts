@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAppointmentDto {
   @IsNotEmpty()
-  @IsDate()
+  @IsDateString()
   @ApiProperty({
     description: 'The date of the appointment',
     example: '2025-07-30',
