@@ -36,7 +36,7 @@ export class CreateAppointmentDto {
   })
   public notes?: string;
 
-// Removed the `cancellationReason` field as it is not appropriate for the CreateAppointmentDto.
+  // Removed the `cancellationReason` field as it is not appropriate for the CreateAppointmentDto.
 
   @IsNumber()
   @IsOptional()

@@ -126,6 +126,7 @@ export class AppointmentsService {
     const overlappingAppointment = await this.appointmentRepo.findOne({
       where: {
         employeeId: createDto.employeeId,
+        appointmentDate: createDto.appointmentDate,
         startTime: LessThan(createDto.endTime),
         endTime: MoreThan(createDto.startTime),
       },
