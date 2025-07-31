@@ -66,6 +66,12 @@ export class SchedulesService {
     if (updateDto.startTime && updateDto.endTime && updateDto.startTime >= updateDto.endTime) {
       throw new BadRequestException('Start time must be before end time');
     }
+    if (updateDto.startTime && !updateDto.endTime && updateDto.startTime >= entity.endTime) {
+      throw new BadRequestException('Start time must be before the existing end time');
+    }
+    if (updateDto.endTime && !updateDto.startTime && updateDto.endTime <= entity.startTime) {
+      throw new BadRequestException('End time must be after the existing start time');
+    }
 
     if (updateDto.employeeId !== undefined) {
       const employee = await this.employeeRepo.findOne({
