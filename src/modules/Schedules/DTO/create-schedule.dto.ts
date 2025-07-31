@@ -1,9 +1,20 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateScheduleDto {
   @IsNumber()
   @IsNotEmpty()
+  @Min(1)
+  @Max(7)
   @ApiProperty({
     description: 'The day of the week for the schedule. 1 is Monday and 7 is Sunday',
     example: 1,

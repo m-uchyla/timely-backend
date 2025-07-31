@@ -28,6 +28,10 @@ export class SchedulesService {
   }
 
   public async create(createDto: CreateScheduleDto): Promise<Schedule> {
+    // Validate dayOfWeek
+    if (createDto.dayOfWeek < 1 || createDto.dayOfWeek > 7) {
+      throw new BadRequestException('dayOfWeek must be between 1 (Monday) and 7 (Sunday)');
+    }
     // Validate startTime and endTime format
     if (!this.isValidTimeFormat(createDto.startTime)) {
       throw new BadRequestException(`Invalid start time format: ${createDto.startTime}`);
@@ -53,6 +57,11 @@ export class SchedulesService {
 
   public async update(id: number, updateDto: UpdateScheduleDto): Promise<Schedule> {
     const entity = await this.findOne(id);
+
+    // Validate dayOfWeek
+    if (updateDto.dayOfWeek && (updateDto.dayOfWeek < 1 || updateDto.dayOfWeek > 7)) {
+      throw new BadRequestException('dayOfWeek must be between 1 (Monday) and 7 (Sunday)');
+    }
 
     // Validate startTime and endTime format if provided
     if (updateDto.startTime && !this.isValidTimeFormat(updateDto.startTime)) {
