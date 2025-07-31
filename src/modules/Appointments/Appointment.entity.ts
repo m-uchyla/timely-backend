@@ -79,14 +79,14 @@ export class Appointment {
   @ManyToOne(() => Employee, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'employeeId', referencedColumnName: 'id' })
   @ApiProperty({
-    description: 'The employee associated with the schedule',
+    description: 'The employee associated with the appointment',
     type: () => Employee,
   })
   public employee: Employee;
 
   @Column()
   @ApiProperty({
-    description: 'The ID of the employee associated with the schedule',
+    description: 'The ID of the employee associated with the appointment',
     example: 1,
   })
   public employeeId: number;
