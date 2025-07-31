@@ -82,7 +82,7 @@ export class SchedulesService {
   public async remove(id: number): Promise<void> {
     const result = await this.scheduleRepo.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Organization with ID ${id} not found`);
+      throw new NotFoundException(`Schedule with ID ${id} not found`);
     }
   }
 
