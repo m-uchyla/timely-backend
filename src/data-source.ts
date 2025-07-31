@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
+import { Appointment } from './modules/Appointments/Appointment.entity';
 import { Employee } from './modules/Employees/Employee.entity';
 import { Organization } from './modules/Organizations/Organization.entity';
 import { Schedule } from './modules/Schedules/Schedule.entity';
@@ -15,8 +16,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [Service, Organization, Employee, User, Schedule], // lub: [__dirname + '/**/*.entity{.ts,.js}']
+  entities: [Service, Organization, Employee, User, Schedule, Appointment], // lub: [__dirname + '/**/*.entity{.ts,.js}']
   migrations: [`${__dirname}/migrations/*{.ts,.js}`],
   synchronize: false,
-  logging: true,
 });

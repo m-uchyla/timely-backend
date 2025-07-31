@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppointmentsModule } from './modules/Appointments/Appointments.module';
 import { EmployeesModule } from './modules/Employees/Employees.module';
 import { OrganizationsModule } from './modules/Organizations/Organizations.module';
 import { SchedulesModule } from './modules/Schedules/Schedules.module';
@@ -14,6 +15,7 @@ import { UsersModule } from './modules/Users/Users.module';
     SchedulesModule,
     OrganizationsModule,
     UsersModule,
+    AppointmentsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
