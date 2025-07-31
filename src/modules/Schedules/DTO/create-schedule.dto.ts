@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateScheduleDto {
@@ -15,12 +15,20 @@ export class CreateScheduleDto {
     description: 'The start time of the schedule',
     example: '08:00:00',
   })
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+    message: 'startTime must be in the format HH:mm:ss',
+  })
   public startTime: string;
 
   @IsNotEmpty()
   @ApiProperty({
     description: 'The end time of the schedule',
     example: '17:00:00',
+  })
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+    message: 'endTime must be in the format HH:mm:ss',
   })
   public endTime: string;
 
