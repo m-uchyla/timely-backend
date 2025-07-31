@@ -36,15 +36,7 @@ export class CreateAppointmentDto {
   })
   public notes?: string;
 
-  @IsString()
-  @IsOptional()
-  @MaxLength(255)
-  @ApiProperty({
-    description: 'Reason for appointment cancellation',
-    example: 'Customer was unavailable.',
-    required: false,
-  })
-  public cancellationReason?: string;
+// Removed the `cancellationReason` field as it is not appropriate for the CreateAppointmentDto.
 
   @IsNumber()
   @IsOptional()
