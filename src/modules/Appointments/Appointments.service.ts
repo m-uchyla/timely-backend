@@ -134,7 +134,6 @@ export class AppointmentsService {
     if (overlappingAppointment) {
       return false; // Time slot is not available due to overlapping appointment
     }
-    console.log('No overlapping appointments found, checking schedule availability.');
 
     // Check if the employee is scheduled to work during this time
     const schedule = await this.scheduleRepo.findOne({
