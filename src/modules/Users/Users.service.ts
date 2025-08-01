@@ -25,13 +25,13 @@ export class UsersService {
     return entity;
   }
 
-  public async findByEmail(email: string): Promise<User> {
+  public async findByEmail(email: string): Promise<User | null> {
     const user = await this.userRepo.findOne({
       where: { email },
       select: ['id', 'email', 'password', 'role', 'isActive'],
     });
     if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
+      return null;
     }
     return user;
   }
