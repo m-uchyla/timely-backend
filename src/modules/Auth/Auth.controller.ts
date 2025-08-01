@@ -1,26 +1,21 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './Auth.service';
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
+import { LoginDto } from './DTO/login.dto';
 
 @Controller('auth')
-
-class LoginDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
-  password: string;
-}
-
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  public async login(
-    @Body() loginDto: LoginDto,
-  ): Promise<{ access_token: string }> {
+  @ApiOperation({ summary: 'Authenticate user and return access token' })
+  @ApiResponse({
+    status: 201,
+    description: 'User successfully logged in',
+    schema: { example: { access_token: 'jwt.token.here' } },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  public async login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
     return this.authService.login(loginDto);
   }
 }
