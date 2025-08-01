@@ -26,6 +26,14 @@ export class CreateUserDto {
   })
   public email: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'The password of the user',
+    example: 'securepassword123',
+  })
+  public password: string;
+
   @IsBoolean()
   @IsOptional()
   @ApiProperty({

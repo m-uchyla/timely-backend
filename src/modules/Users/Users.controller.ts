@@ -52,7 +52,7 @@ export class UsersController {
     status: 400,
     description: 'Invalid input data',
   })
-  public create(@Body() createDto: CreateUserDto): Promise<UserEntity> {
+  public create(@Body() createDto: CreateUserDto): Promise<Omit<UserEntity, 'password'>> {
     return this.svc.create(createDto);
   }
 
@@ -75,7 +75,7 @@ export class UsersController {
   public update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateUserDto,
-  ): Promise<UserEntity> {
+  ): Promise<Omit<UserEntity, 'password'>> {
     return this.svc.update(id, updateDto);
   }
 
