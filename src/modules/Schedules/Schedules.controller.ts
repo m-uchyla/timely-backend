@@ -5,7 +5,7 @@ import { UpdateScheduleDto } from './DTO/update-schedule.dto';
 import { Schedule as ScheduleEntity } from './Schedule.entity';
 import { SchedulesService } from './Schedules.service';
 
-@ApiTags('Schedules') // Group endpoints under "Schedules"
+@ApiTags('Schedules')
 @Controller('schedules')
 export class SchedulesController {
   constructor(private readonly svc: SchedulesService) {}

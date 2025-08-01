@@ -1,4 +1,11 @@
-import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAppointmentDto {
@@ -35,8 +42,6 @@ export class CreateAppointmentDto {
     required: false,
   })
   public notes?: string;
-
-  // Removed the `cancellationReason` field as it is not appropriate for the CreateAppointmentDto.
 
   @IsNumber()
   @IsOptional()

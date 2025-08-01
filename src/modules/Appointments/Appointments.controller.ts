@@ -5,7 +5,7 @@ import { AppointmentsService } from './Appointments.service';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
-@ApiTags('Appointments') // Group endpoints under "Appointments"
+@ApiTags('Appointments')
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}

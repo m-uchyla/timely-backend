@@ -5,7 +5,7 @@ import { UpdateOrganizationDto } from './DTO/update-organization.dto';
 import { Organization as OrganizationEntity } from './Organization.entity';
 import { OrganizationsService } from './Organizations.service';
 
-@ApiTags('Organizations') // Group endpoints under "Organizations"
+@ApiTags('Organizations')
 @Controller('organizations')
 export class OrganizationsController {
   constructor(private readonly svc: OrganizationsService) {}

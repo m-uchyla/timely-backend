@@ -5,7 +5,7 @@ import { UpdateEmployeeDto } from './DTO/update-employee.dto';
 import { Employee as EmployeeEntity } from './Employee.entity';
 import { EmployeesService } from './Employees.service';
 
-@ApiTags('Employees') // Group endpoints under "Employees"
+@ApiTags('Employees')
 @Controller('employees')
 export class EmployeesController {
   constructor(private readonly svc: EmployeesService) {}
