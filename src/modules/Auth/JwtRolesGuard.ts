@@ -39,6 +39,10 @@ export class JwtRolesGuard extends AuthGuard('jwt') implements CanActivate {
       throw new UnauthorizedException('User not authenticated');
     }
 
+    if (!user.role || typeof user.role !== 'string') {
+      return false;
+    }
+
     return requiredRoles.some((role) => user.role === role);
   }
 }
