@@ -25,8 +25,8 @@ export class User {
   public password: string;
 
   @Column({ default: Role.USER, type: 'enum', enum: Role })
-  @ApiProperty({ description: 'The role of the user', example: 'user' })
-  public role: string;
+  @ApiProperty({ description: 'The role of the user', example: Role.USER })
+  public role: Role;
 
   @Column({ default: true })
   @ApiProperty({ description: 'Indicates if the user is active', example: true })
