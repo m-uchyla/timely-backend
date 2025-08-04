@@ -9,7 +9,7 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @ApiProperty({
     description: 'The role of the user. Optional',
-    example: 'admin',
+    example: Role.USER,
   })
   public role?: Role;
 }
