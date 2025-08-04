@@ -2,12 +2,14 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './Auth.service';
 import { LoginDto } from './DTO/login.dto';
+import { Public } from './Roles';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Public()
   @ApiOperation({ summary: 'Authenticate user and return access token' })
   @ApiResponse({
     status: 201,

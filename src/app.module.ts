@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppointmentsModule } from './modules/Appointments/Appointments.module';
 import { AuthModule } from './modules/Auth/Auth.module';
+import { JwtRolesGuard } from './modules/Auth/JwtRolesGuard';
 import { EmployeesModule } from './modules/Employees/Employees.module';
 import { OrganizationsModule } from './modules/Organizations/Organizations.module';
 import { SchedulesModule } from './modules/Schedules/Schedules.module';
@@ -35,6 +37,12 @@ import { UsersModule } from './modules/Users/Users.module';
         synchronize: true,
       }),
     }),
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtRolesGuard,
+    },
   ],
 })
 export class AppModule {}

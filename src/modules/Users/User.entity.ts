@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../Auth/Roles';
 
 @Entity()
 export class User {
@@ -23,9 +24,9 @@ export class User {
   @ApiProperty({ description: 'The password of the user', example: 'securepassword123' })
   public password: string;
 
-  @Column({ default: 'user' })
-  @ApiProperty({ description: 'The role of the user', example: 'user' })
-  public role: string;
+  @Column({ default: Role.USER, type: 'enum', enum: Role })
+  @ApiProperty({ description: 'The role of the user', example: Role.USER })
+  public role: Role;
 
   @Column({ default: true })
   @ApiProperty({ description: 'Indicates if the user is active', example: true })

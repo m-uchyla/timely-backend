@@ -9,8 +9,9 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtRolesGuard } from '../Auth/JwtRolesGuard';
+import { Role, Roles } from '../Auth/Roles';
 import { CreateOrganizationDto } from './DTO/create-organization.dto';
 import { UpdateOrganizationDto } from './DTO/update-organization.dto';
 import { Organization as OrganizationEntity } from './Organization.entity';
@@ -21,7 +22,8 @@ import { OrganizationsService } from './Organizations.service';
 export class OrganizationsController {
   constructor(private readonly svc: OrganizationsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtRolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
   @Get()
   @ApiOperation({ summary: 'Retrieve all organizations' })
   @ApiResponse({
