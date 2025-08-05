@@ -55,11 +55,38 @@ export class ServicesService {
     return this.serviceRepo.save(entity);
   }
 
+  public async updateForOrganization(
+    id: number,
+    updateDto: UpdateServiceDto,
+    organizationId: number,
+  ): Promise<Service> {
+    const entity = await this.findOne(id);
+
+    if (entity.organizationId !== organizationId) {
+      throw new NotFoundException(
+        `Service with ID ${id} not found in organization ${organizationId}`,
+      );
+    }
+
+    return this.update(id, updateDto);
+  }
+
   public async remove(id: number): Promise<void> {
     const result = await this.serviceRepo.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Service with ID ${id} not found`);
     }
+  }
+
+  public async removeOrganizationService(id: number, organizationId: number): Promise<void> {
+    const entity = await this.findOne(id);
+    if (entity.organizationId !== organizationId) {
+      throw new NotFoundException(
+        `Service with ID ${id} not found in organization ${organizationId}`,
+      );
+    }
+
+    await this.remove(id);
   }
 
   public async findByOrganization(id: number): Promise<Service[]> {

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Put, Request } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Put, Request } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { UpdateOrganizationDto } from './DTO/update-organization.dto';
