@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -41,4 +41,12 @@ export class CreateUserDto {
     example: true,
   })
   public isActive?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiProperty({
+    description: 'The organization of the user',
+    example: 1,
+  })
+  public organizationId?: number;
 }

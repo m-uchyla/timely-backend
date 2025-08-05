@@ -34,8 +34,14 @@ export class OrganizationsService {
     if (!user) {
       throw new NotFoundException(`User with ID ${createDto.ownerId} not found`);
     }
+
     const entity = this.organizationRepo.create(createDto);
-    return this.organizationRepo.save(entity);
+    const savedOrganization = await this.organizationRepo.save(entity);
+
+    user.organizationId = savedOrganization.id;
+    await this.userRepo.save(user);
+
+    return savedOrganization;
   }
 
   public async update(id: number, updateDto: UpdateOrganizationDto): Promise<Organization> {

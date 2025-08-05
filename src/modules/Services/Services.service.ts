@@ -61,4 +61,8 @@ export class ServicesService {
       throw new NotFoundException(`Service with ID ${id} not found`);
     }
   }
+
+  public async findByOrganization(id: number): Promise<Service[]> {
+    return await this.serviceRepo.find({ where: { organizationId: id } });
+  }
 }

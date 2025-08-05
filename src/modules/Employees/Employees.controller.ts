@@ -1,5 +1,17 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Request,
+} from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role, Roles } from '../Auth/Roles';
 import { CreateEmployeeDto } from './DTO/create-employee.dto';
 import { UpdateEmployeeDto } from './DTO/update-employee.dto';
 import { Employee as EmployeeEntity } from './Employee.entity';
@@ -11,6 +23,7 @@ export class EmployeesController {
   constructor(private readonly svc: EmployeesService) {}
 
   @Get()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Retrieve all employees' })
   @ApiResponse({
     status: 200,
@@ -21,7 +34,26 @@ export class EmployeesController {
     return this.svc.findAll();
   }
 
+  @Get('userEmployees')
+  @Roles(Role.ADMIN, Role.OWNER)
+  @ApiOperation({ summary: "Retrieve all employees of the logged-in user's organization" })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all employees',
+    type: [EmployeeEntity],
+  })
+  public findAllUserEmployees(
+    @Request() req: { user: { organizationId: number } },
+  ): Promise<EmployeeEntity[]> {
+    const user = req.user;
+    if (!user.organizationId) {
+      throw new NotFoundException('User does not belong to any organization');
+    }
+    return this.svc.findByOrganization(user.organizationId);
+  }
+
   @Get(':id')
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Retrieve an employee by ID' })
   @ApiParam({
     name: 'id',
@@ -42,6 +74,7 @@ export class EmployeesController {
   }
 
   @Post()
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Create a new employee' })
   @ApiResponse({
     status: 201,
@@ -57,6 +90,7 @@ export class EmployeesController {
   }
 
   @Put(':id')
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Update an existing employee' })
   @ApiParam({
     name: 'id',
@@ -80,6 +114,7 @@ export class EmployeesController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Delete an employee by ID' })
   @ApiParam({
     name: 'id',
@@ -96,5 +131,28 @@ export class EmployeesController {
   })
   public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.svc.remove(id);
+  }
+
+  @Get('organization/:orgId')
+  @Roles(Role.ADMIN, Role.OWNER)
+  @ApiOperation({ summary: 'Retrieve all employees from a specific organization' })
+  @ApiParam({
+    name: 'orgId',
+    description: 'The ID of the organization to retrieve employees from',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of employees from the specified organization',
+    type: [EmployeeEntity],
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Organization not found',
+  })
+  public findByOrganization(
+    @Param('orgId', ParseIntPipe) orgId: number,
+  ): Promise<EmployeeEntity[]> {
+    return this.svc.findByOrganization(orgId);
   }
 }

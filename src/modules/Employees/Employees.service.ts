@@ -58,4 +58,12 @@ export class EmployeesService {
       throw new NotFoundException(`Employee with ID ${id} not found`);
     }
   }
+
+  public async findByOrganization(orgId: number): Promise<Employee[]> {
+    const organization = await this.organizationRepo.findOne({ where: { id: orgId } });
+    if (!organization) {
+      throw new NotFoundException(`Organization with ID ${orgId} not found`);
+    }
+    return this.employeeRepo.find({ where: { organizationId: orgId } });
+  }
 }

@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public, Role, Roles } from '../Auth/Roles';
 import { CreateUserDto } from './DTO/create-user.dto';
 import { UpdateUserDto } from './DTO/update-user.dto';
 import { User as UserEntity } from './User.entity';
@@ -7,6 +8,7 @@ import { UsersService } from './Users.service';
 
 @ApiTags('Users')
 @Controller('users')
+@Roles(Role.ADMIN)
 export class UsersController {
   constructor(private readonly svc: UsersService) {}
 
@@ -42,6 +44,7 @@ export class UsersController {
   }
 
   @Post()
+  @Public() //TO BE REMOVED IN PRODUCTION
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
     status: 201,
@@ -57,6 +60,7 @@ export class UsersController {
   }
 
   @Put(':id')
+  @Public() //TO BE REMOVED IN PRODUCTION
   @ApiOperation({ summary: 'Update an existing user' })
   @ApiParam({
     name: 'id',

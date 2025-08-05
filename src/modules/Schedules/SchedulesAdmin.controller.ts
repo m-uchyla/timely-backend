@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Put,
-  Request,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { CreateScheduleDto } from './DTO/create-schedule.dto';
@@ -17,10 +7,41 @@ import { Schedule as ScheduleEntity } from './Schedule.entity';
 import { SchedulesService } from './Schedules.service';
 
 @ApiTags('Schedules')
-@Roles(Role.ADMIN, Role.OWNER)
-@Controller('schedules')
-export class SchedulesController {
+@Roles(Role.ADMIN)
+@Controller('schedules/admin')
+export class SchedulesAdminController {
   constructor(private readonly svc: SchedulesService) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Retrieve all schedules' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all schedules',
+    type: [ScheduleEntity],
+  })
+  public findAll(): Promise<ScheduleEntity[]> {
+    return this.svc.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Retrieve a schedule by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the schedule to retrieve',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The schedule with the specified ID',
+    type: ScheduleEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Schedule not found',
+  })
+  public findOne(@Param('id', ParseIntPipe) id: number): Promise<ScheduleEntity> {
+    return this.svc.findOne(id);
+  }
 
   @Get('employee/:employeeId')
   @ApiOperation({ summary: 'Retrieve all schedules for a specific employee' })
@@ -44,25 +65,8 @@ export class SchedulesController {
     return this.svc.findAllByEmployee(employeeId);
   }
 
-  @Get('organization')
-  @ApiOperation({ summary: 'Retrieve all schedules for a logged-in user organization' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of schedules for the specified organization',
-    type: [ScheduleEntity],
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Organization not found',
-  })
-  public findAllByOrganization(
-    @Request() req: { user: { organizationId: number } },
-  ): Promise<ScheduleEntity[]> {
-    return this.svc.findAllByOrganization(req.user.organizationId);
-  }
-
   @Post()
-  @ApiOperation({ summary: 'Create a new schedule for logged-in user organization employee' })
+  @ApiOperation({ summary: 'Create a new schedule' })
   @ApiResponse({
     status: 201,
     description: 'The schedule has been successfully created',
@@ -72,15 +76,12 @@ export class SchedulesController {
     status: 400,
     description: 'Invalid input data',
   })
-  public create(
-    @Body() createDto: CreateScheduleDto,
-    @Request() req: { user: { organizationId: number } },
-  ): Promise<ScheduleEntity> {
-    return this.svc.createForOrganization(createDto, req.user.organizationId);
+  public create(@Body() createDto: CreateScheduleDto): Promise<ScheduleEntity> {
+    return this.svc.create(createDto);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update an existing schedule for logged-in user organization employee' })
+  @ApiOperation({ summary: 'Update an existing schedule' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the schedule to update',
@@ -98,13 +99,12 @@ export class SchedulesController {
   public update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateScheduleDto,
-    @Request() req: { user: { organizationId: number } },
   ): Promise<ScheduleEntity> {
-    return this.svc.updateForOrganization(id, updateDto, req.user.organizationId);
+    return this.svc.update(id, updateDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a schedule by ID for logged-in user organization employee' })
+  @ApiOperation({ summary: 'Delete a schedule by ID' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the schedule to delete',
@@ -118,10 +118,7 @@ export class SchedulesController {
     status: 404,
     description: 'Schedule not found',
   })
-  public remove(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req: { user: { organizationId: number } },
-  ): Promise<void> {
-    return this.svc.removeForOrganization(id, req.user.organizationId);
+  public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.svc.remove(id);
   }
 }

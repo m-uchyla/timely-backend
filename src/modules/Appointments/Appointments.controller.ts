@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Public, Role, Roles } from '../Auth/Roles';
 import { Appointment as AppointmentEntity } from './Appointment.entity';
 import { AppointmentsService } from './Appointments.service';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
@@ -11,6 +12,7 @@ export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}
 
   @Get()
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Retrieve all appointments' })
   @ApiResponse({
     status: 200,
@@ -22,6 +24,7 @@ export class AppointmentsController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Retrieve an appointment by ID' })
   @ApiParam({
     name: 'id',
@@ -42,6 +45,7 @@ export class AppointmentsController {
   }
 
   @Get('employee/:employeeId')
+  @Roles(Role.ADMIN, Role.OWNER)
   @ApiOperation({ summary: 'Retrieve all appointments for a specific employee' })
   @ApiParam({
     name: 'employeeId',
@@ -64,6 +68,7 @@ export class AppointmentsController {
   }
 
   @Post()
+  @Public()
   @ApiOperation({ summary: 'Create a new appointment' })
   @ApiResponse({
     status: 201,
@@ -79,6 +84,7 @@ export class AppointmentsController {
   }
 
   @Put(':id')
+  @Public()
   @ApiOperation({ summary: 'Update an existing appointment' })
   @ApiParam({
     name: 'id',
@@ -102,6 +108,7 @@ export class AppointmentsController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete an appointment by ID' })
   @ApiParam({
     name: 'id',

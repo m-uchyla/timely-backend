@@ -53,10 +53,10 @@ export class CreateServiceDto {
   public cost?: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'The ID of the organization offering the service',
     example: 1,
   })
-  public organizationId: number;
+  public organizationId?: number;
 }
