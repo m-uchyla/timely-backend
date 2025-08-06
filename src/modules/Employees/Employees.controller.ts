@@ -133,26 +133,4 @@ export class EmployeesController {
   ): Promise<void> {
     return this.svc.removeOrganizationEmployee(id, req.user.organizationId);
   }
-
-  @Get('organization/:orgId')
-  @ApiOperation({ summary: 'Retrieve all employees from a specific organization' })
-  @ApiParam({
-    name: 'orgId',
-    description: 'The ID of the organization to retrieve employees from',
-    example: 1,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of employees from the specified organization',
-    type: [EmployeeEntity],
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Organization not found',
-  })
-  public findByOrganization(
-    @Param('orgId', ParseIntPipe) orgId: number,
-  ): Promise<EmployeeEntity[]> {
-    return this.svc.findByOrganization(orgId);
-  }
 }

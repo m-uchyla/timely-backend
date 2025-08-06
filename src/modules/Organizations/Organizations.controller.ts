@@ -22,10 +22,11 @@ export class OrganizationsController {
     status: 404,
     description: 'Organization not found',
   })
-  public findUserOrganization(@Request() req: { user }): Promise<OrganizationEntity> {
-    const user = req.user;
-    const organizationId = Number(user.organizationId);
-    if (!organizationId || isNaN(organizationId)) {
+  public findUserOrganization(
+    @Request() req: { user: { organizationId: number } },
+  ): Promise<OrganizationEntity> {
+    const organizationId = req.user.organizationId;
+    if (!organizationId) {
       throw new NotFoundException('The logged-in user does not belong to any organization.');
     }
     return this.svc.findOne(organizationId);
