@@ -27,10 +27,10 @@ export class CreateEmployeeDto {
   public isActive?: boolean;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'The ID of the organization the employee belongs to',
     example: 1,
   })
-  public organizationId: number;
+  public organizationId?: number;
 }

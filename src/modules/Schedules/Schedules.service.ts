@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from '../Employees/Employee.entity';
@@ -25,6 +25,47 @@ export class SchedulesService {
       throw new NotFoundException(`Schedule with ID ${id} not found`);
     }
     return entity;
+  }
+
+  public async createForOrganization(
+    createDto: CreateScheduleDto,
+    orgId: number,
+  ): Promise<Schedule> {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: createDto.employeeId, organizationId: orgId },
+    });
+    if (!employee) {
+      throw new NotFoundException(`Employee not found for organization ID ${orgId}`);
+    }
+    return this.create(createDto);
+  }
+
+  public async updateForOrganization(
+    id: number,
+    updateDto: UpdateScheduleDto,
+    organizationId: number,
+  ): Promise<Schedule> {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: updateDto.employeeId, organizationId },
+    });
+    if (!employee) {
+      throw new NotFoundException(`Employee not found for organization ID ${organizationId}`);
+    }
+    return this.update(id, updateDto);
+  }
+
+  public async removeForOrganization(id: number, organizationId: number): Promise<void> {
+    const schedule = await this.scheduleRepo.findOne({ where: { id } });
+    if (!schedule) {
+      throw new NotFoundException(`Schedule with ID ${id} not found`);
+    }
+    const employee = await this.employeeRepo.findOne({
+      where: { id: schedule.employeeId, organizationId },
+    });
+    if (!employee) {
+      throw new NotFoundException(`Employee not found for organization ID ${organizationId}`);
+    }
+    await this.remove(id);
   }
 
   public async create(createDto: CreateScheduleDto): Promise<Schedule> {
@@ -107,6 +148,14 @@ export class SchedulesService {
       throw new NotFoundException(`Employee with ID ${employeeId} not found`);
     }
     return this.scheduleRepo.find({ where: { employeeId } });
+  }
+
+  public async findAllByOrganization(organizationId: number): Promise<Schedule[]> {
+    const employees = await this.employeeRepo.find({ where: { organizationId } });
+    if (!employees) {
+      throw new NotFoundException(`Employees with organization ID ${organizationId} not found`);
+    }
+    return this.scheduleRepo.find({ where: { employeeId: In(employees.map((emp) => emp.id)) } });
   }
 
   // Utility function to validate time format (HH:mm:ss)

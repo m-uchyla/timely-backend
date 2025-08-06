@@ -27,6 +27,18 @@ export class EmployeesService {
     return entity;
   }
 
+  public async findOneFromOrganization(id: number, organizationId: number): Promise<Employee> {
+    const entity = await this.employeeRepo.findOne({
+      where: { id, organizationId },
+    });
+    if (!entity) {
+      throw new NotFoundException(
+        `Employee with ID ${id} not found in organization ${organizationId}`,
+      );
+    }
+    return entity;
+  }
+
   public async create(createDto: CreateEmployeeDto): Promise<Employee> {
     const organization = await this.organizationRepo.findOne({
       where: { id: createDto.organizationId },
@@ -52,10 +64,44 @@ export class EmployeesService {
     return this.employeeRepo.save(entity);
   }
 
+  public async updateFromOrganization(
+    id: number,
+    updateDto: UpdateEmployeeDto,
+    organizationId: number,
+  ): Promise<Employee> {
+    const entity = await this.employeeRepo.findOne({
+      where: { id, organizationId },
+    });
+    if (!entity) {
+      throw new NotFoundException(
+        `Employee with ID ${id} not found in organization ${organizationId}`,
+      );
+    }
+    Object.assign(entity, updateDto);
+    return this.employeeRepo.save(entity);
+  }
+
   public async remove(id: number): Promise<void> {
     const result = await this.employeeRepo.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Employee with ID ${id} not found`);
     }
+  }
+
+  public async removeOrganizationEmployee(id: number, organizationId: number): Promise<void> {
+    const result = await this.employeeRepo.delete({ id, organizationId });
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        `Employee with ID ${id} not found in organization ${organizationId}`,
+      );
+    }
+  }
+
+  public async findByOrganization(orgId: number): Promise<Employee[]> {
+    const organization = await this.organizationRepo.findOne({ where: { id: orgId } });
+    if (!organization) {
+      throw new NotFoundException(`Organization with ID ${orgId} not found`);
+    }
+    return this.employeeRepo.find({ where: { organizationId: orgId } });
   }
 }

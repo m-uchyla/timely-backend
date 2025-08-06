@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../Auth/Roles';
+import { Organization } from '../Organizations/Organization.entity';
 
 @Entity()
 export class User {
@@ -35,6 +36,21 @@ export class User {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @ApiProperty({ description: 'The date the user was created', example: '2025-07-30T12:00:00Z' })
   public createdAt: Date;
+
+  @Column({ nullable: true })
+  @ApiProperty({
+    description: 'The ID of the organization that user owns',
+    example: 1,
+  })
+  public organizationId: number;
+
+  @OneToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
+  @ApiProperty({
+    description: 'The organization offering the service',
+    type: () => Organization,
+  })
+  public organization: Organization;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
   @ApiProperty({
