@@ -55,9 +55,11 @@ export class SchedulesService {
   }
 
   public async removeForOrganization(id: number, organizationId: number): Promise<void> {
-    const employee = await this.employeeRepo.findOne({
-      where: { id, organizationId },
-    });
+    const schedule = await this.scheduleRepo.findOne({ where: { id } });
+    if (!schedule) {
+      throw new NotFoundException(`Schedule with ID ${id} not found`);
+    }
+    const employee = await this.employeeRepo.findOne({ where: { id: schedule.employeeId, organizationId } });
     if (!employee) {
       throw new NotFoundException(`Employee not found for organization ID ${organizationId}`);
     }
