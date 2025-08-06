@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Request } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public, Role, Roles } from '../Auth/Roles';
 import { Appointment as AppointmentEntity } from './Appointment.entity';
@@ -7,24 +7,26 @@ import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
 @ApiTags('Appointments')
+@Roles(Role.ADMIN, Role.OWNER)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}
 
-  // @Get()
-  // @ApiOperation({ summary: 'Retrieve all appointments for the logged-in user organization' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'List of all organization appointments',
-  //   type: [AppointmentEntity],
-  // })
-  // public findAll(): Promise<AppointmentEntity[]> {
-  //   return this.svc.findByOrganization();
-  // }
+  @Get()
+  @ApiOperation({ summary: 'Retrieve all appointments for the logged-in user organization' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of all organization appointments',
+    type: [AppointmentEntity],
+  })
+  public findAll(
+    @Request() req: { user: { organizationId: number } },
+  ): Promise<AppointmentEntity[]> {
+    return this.svc.findByOrganization(req.user.organizationId);
+  }
 
   @Get(':id')
-  @Roles(Role.ADMIN, Role.OWNER)
-  @ApiOperation({ summary: 'Retrieve an appointment by ID' })
+  @ApiOperation({ summary: 'Retrieve an appointment by ID for the logged-in user organization' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the appointment to retrieve',
@@ -39,13 +41,17 @@ export class AppointmentsController {
     status: 404,
     description: 'Appointment not found',
   })
-  public findOne(@Param('id', ParseIntPipe) id: number): Promise<AppointmentEntity> {
-    return this.svc.findOne(id);
+  public findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: { organizationId: number } },
+  ): Promise<AppointmentEntity> {
+    return this.svc.findOneInOrganization(id, req.user.organizationId);
   }
 
   @Get('employee/:employeeId')
-  @Roles(Role.ADMIN, Role.OWNER)
-  @ApiOperation({ summary: 'Retrieve all appointments for a specific employee' })
+  @ApiOperation({
+    summary: 'Retrieve all appointments for a specific employee in logged-in user organization',
+  })
   @ApiParam({
     name: 'employeeId',
     description: 'The ID of the employee whose appointments to retrieve',
@@ -62,8 +68,9 @@ export class AppointmentsController {
   })
   public findAllByEmployee(
     @Param('employeeId', ParseIntPipe) employeeId: number,
+    @Request() req: { user: { organizationId: number } },
   ): Promise<AppointmentEntity[]> {
-    return this.svc.findAllByEmployee(employeeId);
+    return this.svc.findAllByEmployeeOrganization(employeeId, req.user.organizationId);
   }
 
   @Post()
@@ -104,25 +111,5 @@ export class AppointmentsController {
     @Body() updateDto: UpdateAppointmentDto,
   ): Promise<AppointmentEntity> {
     return this.svc.update(id, updateDto);
-  }
-
-  @Delete(':id')
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Delete an appointment by ID' })
-  @ApiParam({
-    name: 'id',
-    description: 'The ID of the appointment to delete',
-    example: 1,
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'The appointment has been successfully deleted',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Appointment not found',
-  })
-  public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.svc.remove(id);
   }
 }

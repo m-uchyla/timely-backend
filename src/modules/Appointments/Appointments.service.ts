@@ -1,4 +1,4 @@
-import { LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { In, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from '../Employees/Employee.entity';
@@ -26,6 +26,20 @@ export class AppointmentsService {
     return this.appointmentRepo.find();
   }
 
+  public async findByOrganization(organizationId: number): Promise<Appointment[]> {
+    const employees = await this.employeeRepo.find({
+      where: { organizationId },
+    });
+
+    if (employees.length === 0) {
+      throw new NotFoundException(`No employees found for organization ID ${organizationId}`);
+    }
+
+    return this.appointmentRepo.find({
+      where: { employeeId: In(employees.map((e) => e.id)) },
+    });
+  }
+
   public async findOne(id: number): Promise<Appointment> {
     const entity = await this.appointmentRepo.findOne({ where: { id } });
     if (!entity) {
@@ -34,8 +48,44 @@ export class AppointmentsService {
     return entity;
   }
 
+  public async findOneInOrganization(id: number, organizationId: number): Promise<Appointment> {
+    const entity = await this.appointmentRepo.findOne({
+      where: { id },
+    });
+    if (!entity) {
+      throw new NotFoundException(`Appointment with ID ${id} not found`);
+    }
+    const employee = await this.employeeRepo.findOne({
+      where: { id: entity.employeeId, organizationId },
+    });
+    if (!employee || employee.organizationId !== organizationId) {
+      throw new NotFoundException(
+        `Appointment with ID ${id} does not belong to organization ${organizationId}`,
+      );
+    }
+    return entity;
+  }
+
   public async findAllByEmployee(employeeId: number): Promise<Appointment[]> {
     return this.appointmentRepo.find({ where: { employeeId } });
+  }
+
+  public async findAllByEmployeeOrganization(
+    employeeId: number,
+    organizationId: number,
+  ): Promise<Appointment[]> {
+    const employee = await this.employeeRepo.findOne({
+      where: { id: employeeId, organizationId },
+    });
+    if (!employee) {
+      throw new NotFoundException(
+        `Employee with ID ${employeeId} not found in organization ${organizationId}`,
+      );
+    }
+
+    return this.appointmentRepo.find({
+      where: { employeeId },
+    });
   }
 
   public async create(createDto: CreateAppointmentDto): Promise<Appointment> {
