@@ -28,6 +28,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // Swagger UI will be available at /api
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3001', // Your Next.js frontend
+      'http://localhost:3000', // Same origin (if needed)
+      // Add your production frontend URL here
+      // 'https://your-frontend-domain.com'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+    credentials: false, // Set to true if you need to send cookies/auth credentials
+  });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 // eslint-disable-next-line no-void

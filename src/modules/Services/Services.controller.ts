@@ -25,7 +25,6 @@ export class ServicesController {
   constructor(private readonly svc: ServicesService) {}
 
   @Get('organization')
-  @Public()
   @ApiOperation({ summary: 'Retrieve all services by logged-in user organization' })
   @ApiResponse({
     status: 200,
