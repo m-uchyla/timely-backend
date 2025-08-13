@@ -38,7 +38,7 @@ export class CreateClientDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({
-    description: 'The ID of the organization the employee belongs to',
+    description: 'The ID of the organization the client belongs to',
     example: 1,
   })
   public organizationId?: number;
