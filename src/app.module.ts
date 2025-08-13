@@ -7,6 +7,7 @@ import { AuthModule } from './modules/Auth/Auth.module';
 import { JwtRolesGuard } from './modules/Auth/JwtRolesGuard';
 import { EmployeesModule } from './modules/Employees/Employees.module';
 import { OrganizationsModule } from './modules/Organizations/Organizations.module';
+import { PanelModule } from './modules/Panel/Panel.module';
 import { SchedulesModule } from './modules/Schedules/Schedules.module';
 import { ServicesModule } from './modules/Services/Services.module';
 import { UsersModule } from './modules/Users/Users.module';
@@ -20,6 +21,7 @@ import { UsersModule } from './modules/Users/Users.module';
     UsersModule,
     AppointmentsModule,
     AuthModule,
+    PanelModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from '../Organizations/Organization.entity';
@@ -25,6 +25,10 @@ export class EmployeesService {
       throw new NotFoundException(`Employee with ID ${id} not found`);
     }
     return entity;
+  }
+
+  public async findEmployeesByIds(employeesIds: number[]): Promise<Employee[]> {
+    return await this.employeeRepo.findBy({ id: In(employeesIds) });
   }
 
   public async findOneFromOrganization(id: number, organizationId: number): Promise<Employee> {

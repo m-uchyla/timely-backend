@@ -12,5 +12,6 @@ import { AppointmentsAdminController } from './AppointmentsAdmin.controller';
   imports: [TypeOrmModule.forFeature([Appointment, Employee, Service, Schedule])],
   providers: [AppointmentsService],
   controllers: [AppointmentsController, AppointmentsAdminController],
+  exports: [AppointmentsService],
 })
 export class AppointmentsModule {}
