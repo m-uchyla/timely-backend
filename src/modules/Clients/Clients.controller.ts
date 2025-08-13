@@ -4,7 +4,7 @@ import { Public, Role, Roles } from '../Auth/Roles';
 import { Client as ClientEntity } from './Client.entity';
 import { ClientsService } from './Clients.service';
 import { CreateClientDto } from './DTO/create-client.dto';
-import { UpdateClientDto } from './DTO/update-user.dto';
+import { UpdateClientDto } from './DTO/update-client.dto';
 
 @ApiTags('Clients')
 @Controller('clients')

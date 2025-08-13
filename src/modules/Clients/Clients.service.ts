@@ -3,7 +3,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from './Client.entity';
 import { CreateClientDto } from './DTO/create-client.dto';
-import { UpdateClientDto } from './DTO/update-user.dto';
+import { UpdateClientDto } from './DTO/update-client.dto';
 
 @Injectable()
 export class ClientsService {
