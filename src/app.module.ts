@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppointmentsModule } from './modules/Appointments/Appointments.module';
 import { AuthModule } from './modules/Auth/Auth.module';
 import { JwtRolesGuard } from './modules/Auth/JwtRolesGuard';
+import { ClientsModule } from './modules/Clients/Clients.module';
 import { EmployeesModule } from './modules/Employees/Employees.module';
 import { OrganizationsModule } from './modules/Organizations/Organizations.module';
 import { PanelModule } from './modules/Panel/Panel.module';
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/Users/Users.module';
     AppointmentsModule,
     AuthModule,
     PanelModule,
+    ClientsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

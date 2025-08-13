@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AppointmentsService } from '../Appointments/Appointments.service';
+import { ClientsService } from '../Clients/Clients.service';
 import { EmployeesService } from '../Employees/Employees.service';
 import { ServicesService } from '../Services/Services.service';
 import { PanelResponse } from './types/ApiResponses';
@@ -7,10 +8,12 @@ import { AppointmentPanelItem } from './types/ApiResponses';
 
 @Injectable()
 export class PanelService {
+  // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly servicesService: ServicesService,
     private readonly employeesService: EmployeesService,
     private readonly appointmentsService: AppointmentsService,
+    private readonly clientsService: ClientsService,
   ) {}
 
   public async listServices(
@@ -46,6 +49,13 @@ export class PanelService {
     }
     const employeeMap = new Map(employees.map((emp) => [emp.id, emp]));
 
+    const clientsIds = appointments.map((appointment) => appointment.clientId);
+    const clients = await this.clientsService.findClientsByIds(clientsIds);
+    if (!clients || clients.length === 0) {
+      throw new NotFoundException(`No clients found for organization ID ${organizationId}`);
+    }
+    const clientMap = new Map(clients.map((client) => [client.id, client]));
+
     const panelItems = appointments.map((appointment) => {
       const service = serviceMap.get(appointment.serviceId);
       if (!service) {
@@ -55,6 +65,11 @@ export class PanelService {
       const employee = employeeMap.get(appointment.employeeId);
       if (!employee) {
         throw new NotFoundException(`Employee with ID ${appointment.employeeId} not found`);
+      }
+
+      const client = clientMap.get(appointment.clientId);
+      if (!client) {
+        throw new NotFoundException(`Client with ID ${appointment.clientId} not found`);
       }
 
       // Constructing the AppointmentPanelItem
@@ -78,10 +93,10 @@ export class PanelService {
           durationMinutes: service.durationMinutes,
         },
         client: {
-          id: 0,
-          name: 'not implemented',
-          email: 'not implemented',
-          phone: 'not implemented',
+          id: client.id,
+          name: `${client.firstName} ${client.lastName}`,
+          email: client.email,
+          phone: client.phone,
         },
       };
     });

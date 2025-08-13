@@ -11,10 +11,10 @@ import { AppointmentPanelItem } from './types/ApiResponses';
 export class PanelController {
   constructor(private readonly svc: PanelService) {}
 
-  @Get('services')
-  @ApiOperation({ summary: 'Retrieve appointments with their associated service and employee details, with pagination' })
   @Get('appointments')
-  @ApiOperation({ summary: 'Retrieve all appointments with pagination, including appointment details' })
+  @ApiOperation({
+    summary: 'Retrieve all appointments with pagination, including appointment details',
+  })
   public findAllAppointments(
     @Request() req: { user: { organizationId: number } },
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
