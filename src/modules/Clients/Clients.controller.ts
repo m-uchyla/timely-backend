@@ -64,7 +64,7 @@ export class ClientsController {
   @ApiOperation({ summary: 'Update an existing client' })
   @ApiParam({
     name: 'id',
-    description: 'The ID of the user to update',
+    description: 'The ID of the client to update',
     example: 1,
   })
   @ApiResponse({
