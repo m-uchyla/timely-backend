@@ -18,7 +18,18 @@ export class PanelService {
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     const appointments = await this.appointmentsService.findByOrganization(organizationId);
     if (!appointments || appointments.length === 0) {
-      throw new NotFoundException(`No appointments found for organization ID ${organizationId}`);
+      return {
+        data: [],
+        pagination: {
+          page: 1,
+          totalPages: 1,
+          limit: 0,
+          total: 0,
+          items: 0,
+          hasNext: false,
+          hasPrevious: false,
+        },
+      };
     }
 
     const servicesIds = appointments.map((appointment) => appointment.serviceId);
