@@ -16,7 +16,7 @@ export class ClientsController {
   @ApiOperation({ summary: 'Retrieve all clients' })
   @ApiResponse({
     status: 200,
-    description: 'List of all users',
+    description: 'List of all clients',
     type: [ClientEntity],
   })
   public findAll(): Promise<ClientEntity[]> {
