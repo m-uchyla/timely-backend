@@ -12,7 +12,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public, Role, Roles } from '../Auth/Roles';
+import { Role, Roles } from '../Auth/Roles';
 import { CreateServiceDto } from './DTO/create-service.dto';
 import { UpdateServiceDto } from './DTO/update-service.dto';
 import { Service as ServiceEntity } from './Service.entity';

@@ -10,5 +10,6 @@ import { ServicesAdminController } from './ServicesAdmin.controller';
   imports: [TypeOrmModule.forFeature([Service, Organization])],
   providers: [ServicesService],
   controllers: [ServicesController, ServicesAdminController],
+  exports: [ServicesService],
 })
 export class ServicesModule {}
