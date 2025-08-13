@@ -13,7 +13,9 @@ export class PanelController {
 
   @Get('services')
   @ApiOperation({ summary: 'Retrieve all services with pagination, including appointment details' })
-  public findAllServices(
+  @Get('appointments')
+  @ApiOperation({ summary: 'Retrieve all appointments with pagination, including appointment details' })
+  public findAllAppointments(
     @Request() req: { user: { organizationId: number } },
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     return this.svc.listServices(req.user.organizationId);
