@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Client } from '../Clients/Client.entity';
 import { Employee } from '../Employees/Employee.entity';
 import { Service } from '../Services/Service.entity';
 
@@ -105,4 +106,19 @@ export class Appointment {
     example: 1,
   })
   public serviceId: number;
+
+  @ManyToOne(() => Client, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'clientId', referencedColumnName: 'id' })
+  @ApiProperty({
+    description: 'The client associated with the appointment',
+    type: () => Client,
+  })
+  public client: Client;
+
+  @Column()
+  @ApiProperty({
+    description: 'The ID of the client associated with the appointment',
+    example: 1,
+  })
+  public clientId: number;
 }
