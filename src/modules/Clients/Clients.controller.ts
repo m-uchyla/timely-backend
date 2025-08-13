@@ -61,7 +61,7 @@ export class ClientsController {
 
   @Put(':id')
   @Public() //TO BE REMOVED IN PRODUCTION
-  @ApiOperation({ summary: 'Update an existing user' })
+  @ApiOperation({ summary: 'Update an existing client' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the user to update',
