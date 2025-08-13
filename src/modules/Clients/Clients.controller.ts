@@ -45,7 +45,7 @@ export class ClientsController {
 
   @Post()
   @Public() //TO BE REMOVED IN PRODUCTION
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({ summary: 'Create a new client' })
   @ApiResponse({
     status: 201,
     description: 'The client has been successfully created',
