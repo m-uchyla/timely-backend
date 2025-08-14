@@ -45,27 +45,16 @@ export class AppointmentsService {
     skip: number,
     limit: number,
   ): Promise<{ appointments: Appointment[]; total: number }> {
-    const employees = await this.employeeRepo.find({
-      where: { organizationId },
-    });
+    const qb = this.appointmentRepo
+      .createQueryBuilder('appointment')
+      .innerJoin('appointment.employee', 'employee')
+      .where('employee.organizationId = :organizationId', { organizationId })
+      .skip(skip)
+      .take(limit)
+      .orderBy('appointment.appointmentDate', 'DESC')
+      .addOrderBy('appointment.startTime', 'ASC');
 
-    if (employees.length === 0) {
-      throw new NotFoundException(`No employees found for organization ID ${organizationId}`);
-    }
-
-    const appointments = await this.appointmentRepo.find({
-      where: { employeeId: In(employees.map((e) => e.id)) },
-      skip,
-      take: limit,
-      order: {
-        appointmentDate: 'DESC',
-        startTime: 'ASC',
-      },
-    });
-
-    const total = await this.appointmentRepo.count({
-      where: { employeeId: In(employees.map((e) => e.id)) },
-    });
+    const [appointments, total] = await qb.getManyAndCount();
 
     return {
       appointments,
