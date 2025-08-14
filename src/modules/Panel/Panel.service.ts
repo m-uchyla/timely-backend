@@ -18,19 +18,30 @@ export class PanelService {
 
   public async listServices(
     organizationId: number,
+    page = 1,
+    limit = 10,
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
-    const appointments = await this.appointmentsService.findByOrganization(organizationId);
+    // Apply pagination at database level
+    const skip = (page - 1) * limit;
+
+    // Get paginated appointments and total count in parallel
+    const { appointments, total } = await this.appointmentsService.findByOrganizationPaginated(
+      organizationId,
+      skip,
+      limit,
+    );
+
     if (!appointments || appointments.length === 0) {
       return {
         data: [],
         pagination: {
-          page: 1,
-          totalPages: 1,
-          limit: 0,
-          total: 0,
-          items: 0,
-          hasNext: false,
-          hasPrevious: false,
+          page,
+          totalPages: Math.ceil(total / limit),
+          limit,
+          total,
+          items: appointments.length,
+          hasNext: page < Math.ceil(total / limit),
+          hasPrevious: page > 1,
         },
       };
     }
@@ -104,13 +115,13 @@ export class PanelService {
     return {
       data: panelItems,
       pagination: {
-        page: 1,
-        totalPages: 1,
-        limit: appointments.length,
-        total: appointments.length,
-        items: appointments.length,
-        hasNext: false,
-        hasPrevious: false,
+        page,
+        totalPages: Math.ceil(total / limit),
+        limit,
+        total,
+        items: panelItems.length,
+        hasNext: page < Math.ceil(total / limit),
+        hasPrevious: page > 1,
       },
     };
   }
