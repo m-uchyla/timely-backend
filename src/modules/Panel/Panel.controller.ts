@@ -37,7 +37,7 @@ export class PanelController {
     if (isNaN(pageNumber) || pageNumber < 1) {
       pageNumber = 1;
     }
-    if (isNaN(limitNumber) || (limitNumber < 1 && limitNumber > 100)) {
+    if (isNaN(limitNumber) || (limitNumber < 1 || limitNumber > 100)) {
       limitNumber = 10;
     }
     return this.svc.listServices(req.user.organizationId, pageNumber, limitNumber);
