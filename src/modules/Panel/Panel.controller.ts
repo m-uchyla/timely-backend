@@ -33,7 +33,14 @@ export class PanelController {
     @Query('limit') limit = '10',
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     const pageNumber = parseInt(page, 10) || 1;
-    const limitNumber = parseInt(limit, 10) || 10;
+    let pageNumber = parseInt(page, 10);
+    let limitNumber = parseInt(limit, 10);
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      pageNumber = 1;
+    }
+    if (isNaN(limitNumber) || limitNumber < 1) {
+      limitNumber = 10;
+    }
     return this.svc.listServices(req.user.organizationId, pageNumber, limitNumber);
   }
 }
