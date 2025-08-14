@@ -1,5 +1,5 @@
-import { Controller, Get, Request } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Query, Request } from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { PanelService } from './Panel.service';
 import { PanelResponse } from './types/ApiResponses';
@@ -15,9 +15,25 @@ export class PanelController {
   @ApiOperation({
     summary: 'Retrieve all appointments with pagination, including appointment details',
   })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 10)',
+  })
   public findAllAppointments(
     @Request() req: { user: { organizationId: number } },
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
-    return this.svc.listServices(req.user.organizationId);
+    const pageNumber = parseInt(page, 10) || 1;
+    const limitNumber = parseInt(limit, 10) || 10;
+    return this.svc.listServices(req.user.organizationId, pageNumber, limitNumber);
   }
 }

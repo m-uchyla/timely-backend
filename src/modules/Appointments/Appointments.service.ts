@@ -40,6 +40,39 @@ export class AppointmentsService {
     });
   }
 
+  public async findByOrganizationPaginated(
+    organizationId: number,
+    skip: number,
+    limit: number,
+  ): Promise<{ appointments: Appointment[]; total: number }> {
+    const employees = await this.employeeRepo.find({
+      where: { organizationId },
+    });
+
+    if (employees.length === 0) {
+      throw new NotFoundException(`No employees found for organization ID ${organizationId}`);
+    }
+
+    const appointments = await this.appointmentRepo.find({
+      where: { employeeId: In(employees.map((e) => e.id)) },
+      skip,
+      take: limit,
+      order: {
+        appointmentDate: 'DESC',
+        startTime: 'ASC',
+      },
+    });
+
+    const total = await this.appointmentRepo.count({
+      where: { employeeId: In(employees.map((e) => e.id)) },
+    });
+
+    return {
+      appointments,
+      total,
+    };
+  }
+
   public async findOne(id: number): Promise<Appointment> {
     const entity = await this.appointmentRepo.findOne({ where: { id } });
     if (!entity) {
