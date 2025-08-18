@@ -16,19 +16,25 @@ export class PanelService {
     private readonly clientsService: ClientsService,
   ) {}
 
-  public async listServices(
+  public async listAppointments(
     organizationId: number,
     page = 1,
     limit = 10,
+    statuses: string[] = [],
+    date?: string,
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     // Apply pagination at database level
     const skip = (page - 1) * limit;
+
+    await this.appointmentsService.checkForArchiving(organizationId);
 
     // Get paginated appointments and total count in parallel
     const { appointments, total } = await this.appointmentsService.findByOrganizationPaginated(
       organizationId,
       skip,
       limit,
+      statuses,
+      date,
     );
 
     if (!appointments || appointments.length === 0) {

@@ -1,5 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { Appointment as AppointmentEntity } from './Appointment.entity';
 import { AppointmentsService } from './Appointments.service';
@@ -120,5 +130,35 @@ export class AppointmentsAdminController {
   })
   public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.svc.remove(id);
+  }
+
+  @Post('archive-expired')
+  @ApiOperation({ summary: 'Archive all expired appointments' })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    description:
+      'Optional organization ID to filter appointments. If not provided, archives all expired appointments across all organizations.',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Expired appointments have been successfully archived',
+    schema: {
+      type: 'object',
+      properties: {
+        archivedCount: {
+          type: 'number',
+          description: 'Number of appointments that were archived',
+          example: 5,
+        },
+      },
+    },
+  })
+  public archiveExpired(@Query('organizationId') organizationId?: string): Promise<{
+    archivedCount: number;
+  }> {
+    const orgId = organizationId ? parseInt(organizationId, 10) : undefined;
+    return this.svc.checkForArchiving(orgId);
   }
 }

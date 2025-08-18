@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from '../Employees/Employee.entity';
 import { Schedule } from '../Schedules/Schedule.entity';
 import { Service } from '../Services/Service.entity';
-import { Appointment } from './Appointment.entity';
+import { Appointment, AppointmentStatus } from './Appointment.entity';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
@@ -44,6 +44,8 @@ export class AppointmentsService {
     organizationId: number,
     skip: number,
     limit: number,
+    statuses: string[],
+    date?: string,
   ): Promise<{ appointments: Appointment[]; total: number }> {
     const qb = this.appointmentRepo
       .createQueryBuilder('appointment')
@@ -53,6 +55,15 @@ export class AppointmentsService {
       .take(limit)
       .orderBy('appointment.appointmentDate', 'DESC')
       .addOrderBy('appointment.startTime', 'ASC');
+
+    if (statuses.length > 0) {
+      qb.andWhere('appointment.status IN (:...statuses)', { statuses });
+    }
+
+    console.log(date);
+    if (date) {
+      qb.andWhere('appointment.appointmentDate = :date', { date });
+    }
 
     const [appointments, total] = await qb.getManyAndCount();
 
@@ -185,6 +196,41 @@ export class AppointmentsService {
     if (result.affected === 0) {
       throw new NotFoundException(`Appointment with ID ${id} not found`);
     }
+  }
+
+  public async checkForArchiving(organizationId?: number): Promise<{ archivedCount: number }> {
+    // Get current date and time
+    const now = new Date();
+    const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0]; // HH:mm:ss format
+
+    // Build the query with optional organization filter
+    let queryBuilder = this.appointmentRepo
+      .createQueryBuilder()
+      .update(Appointment)
+      .set({ status: AppointmentStatus.ARCHIVED })
+      .where('status != :archivedStatus', {
+        archivedStatus: AppointmentStatus.ARCHIVED,
+      })
+      .andWhere(
+        '(appointmentDate < :currentDate OR ' +
+          '(appointmentDate = :currentDate AND endTime <= :currentTime))',
+        { currentDate, currentTime },
+      );
+
+    // If organizationId is provided, filter by organization through employee relationship
+    if (organizationId !== undefined) {
+      queryBuilder = queryBuilder.andWhere(
+        'employeeId IN (SELECT id FROM "employee" WHERE "organizationId" = :organizationId)',
+        { organizationId },
+      );
+    }
+
+    const updateResult = await queryBuilder.execute();
+
+    return {
+      archivedCount: updateResult.affected ?? 0,
+    };
   }
 
   // Utility function to validate time format (HH:mm:ss)
