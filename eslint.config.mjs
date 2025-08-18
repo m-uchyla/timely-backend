@@ -161,8 +161,6 @@ export default tseslint.config(
         },
       ],
       "@typescript-eslint/explicit-module-boundary-types": "error",
-      "max-params": "off",
-      "@typescript-eslint/max-params": 'warn',
       "@typescript-eslint/method-signature-style": "error",
       "@typescript-eslint/no-import-type-side-effects": "error",
       "no-loop-func": "off",
