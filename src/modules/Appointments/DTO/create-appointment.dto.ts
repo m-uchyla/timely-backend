@@ -15,7 +15,7 @@ export class CreateAppointmentDto {
     description: 'The date of the appointment',
     example: '2025-07-30',
   })
-  public appointmentDate: Date;
+  public appointmentDate: string;
 
   @IsNotEmpty()
   @IsString()

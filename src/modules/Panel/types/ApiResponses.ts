@@ -15,10 +15,10 @@ export type PanelResponse<T> = {
 
 export type AppointmentPanelItem = {
   id: number;
-  date: Date;
+  date: string;
   startTime: string;
   endTime: string;
-  status: string;
+  status: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'archived';
   notes?: string;
   cancellationReason?: string;
   price?: number;

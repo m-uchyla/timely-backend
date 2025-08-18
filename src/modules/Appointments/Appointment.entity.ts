@@ -9,6 +9,7 @@ export enum AppointmentStatus {
   CONFIRMED = 'confirmed',
   DECLINED = 'declined',
   CANCELLED = 'cancelled',
+  ARCHIVED = 'archived',
 }
 
 @Entity()
@@ -17,12 +18,12 @@ export class Appointment {
   @ApiProperty({ description: 'The unique identifier of the appointment', example: 1 })
   public id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 10 })
   @ApiProperty({
     description: 'The date of the appointment',
     example: '2025-07-30',
   })
-  public appointmentDate: Date;
+  public appointmentDate: string;
 
   @Column({ type: 'time' })
   @ApiProperty({
