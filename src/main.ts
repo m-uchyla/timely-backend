@@ -1,11 +1,27 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import type { NextFunction, Request, Response } from 'express';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
+
+  const logger = new Logger('Bootstrap');
+
+  // Custom middleware for request logging
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const { method, url, query } = req;
+    const timestamp = new Date().toISOString();
+
+    logger.log(`🚀 [${timestamp}] ${method} ${url}`);
+    logger.debug(`📋 Query: ${JSON.stringify(query)}`);
+
+    next();
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -41,6 +57,11 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000);
+
+  logger.log('🚀 Application is running!');
+  logger.log(`📍 Server: http://localhost:${process.env.PORT ?? 3000}`);
+  logger.log(`📚 Swagger: http://localhost:${process.env.PORT ?? 3000}/api`);
+  logger.log('🔍 Request logging is enabled - you will see all HTTP requests in the console');
 }
 // eslint-disable-next-line no-void
 void bootstrap();
