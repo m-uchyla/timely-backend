@@ -18,7 +18,8 @@ export type AppointmentPanelItem = {
   date: string;
   startTime: string;
   endTime: string;
-  status: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'archived';
+  status: 'pending' | 'confirmed' | 'declined' | 'cancelled';
+  isArchived: boolean;
   notes?: string;
   cancellationReason?: string;
   price?: number;

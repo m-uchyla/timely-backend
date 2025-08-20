@@ -38,9 +38,6 @@ export class OrganizationsService {
     const entity = this.organizationRepo.create(createDto);
     const savedOrganization = await this.organizationRepo.save(entity);
 
-    user.organizationId = savedOrganization.id;
-    await this.userRepo.save(user);
-
     return savedOrganization;
   }
 

@@ -1,16 +1,15 @@
-import { In, LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { LessThan, LessThanOrEqual, MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from '../Employees/Employee.entity';
 import { Schedule } from '../Schedules/Schedule.entity';
 import { Service } from '../Services/Service.entity';
-import { Appointment, AppointmentStatus } from './Appointment.entity';
+import { Appointment } from './Appointment.entity';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
-  // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
@@ -27,16 +26,8 @@ export class AppointmentsService {
   }
 
   public async findByOrganization(organizationId: number): Promise<Appointment[]> {
-    const employees = await this.employeeRepo.find({
-      where: { organizationId },
-    });
-
-    if (employees.length === 0) {
-      throw new NotFoundException(`No employees found for organization ID ${organizationId}`);
-    }
-
     return this.appointmentRepo.find({
-      where: { employeeId: In(employees.map((e) => e.id)) },
+      where: { organizationId },
     });
   }
 
@@ -49,8 +40,7 @@ export class AppointmentsService {
   ): Promise<{ appointments: Appointment[]; total: number }> {
     const qb = this.appointmentRepo
       .createQueryBuilder('appointment')
-      .innerJoin('appointment.employee', 'employee')
-      .where('employee.organizationId = :organizationId', { organizationId })
+      .where('appointment.organizationId = :organizationId', { organizationId })
       .skip(skip)
       .take(limit)
       .orderBy('appointment.appointmentDate', 'DESC')
@@ -60,9 +50,47 @@ export class AppointmentsService {
       qb.andWhere('appointment.status IN (:...statuses)', { statuses });
     }
 
-    console.log(date);
     if (date) {
       qb.andWhere('appointment.appointmentDate = :date', { date });
+    }
+
+    const [appointments, total] = await qb.getManyAndCount();
+
+    return {
+      appointments,
+      total,
+    };
+  }
+
+  public async findByOrganizationPaginatedWithRelations(
+    organizationId: number,
+    skip: number,
+    limit: number,
+    statuses: string[],
+    date?: string,
+    archivedOnly?: boolean,
+  ): Promise<{ appointments: Appointment[]; total: number }> {
+    const qb = this.appointmentRepo
+      .createQueryBuilder('appointment')
+      .leftJoinAndSelect('appointment.employee', 'employee')
+      .leftJoinAndSelect('appointment.service', 'service')
+      .leftJoinAndSelect('appointment.client', 'client')
+      .where('appointment.organizationId = :organizationId', { organizationId })
+      .skip(skip)
+      .take(limit)
+      .orderBy('appointment.appointmentDate', 'DESC')
+      .addOrderBy('appointment.startTime', 'ASC');
+
+    if (statuses.length > 0) {
+      qb.andWhere('appointment.status IN (:...statuses)', { statuses });
+    }
+
+    if (date) {
+      qb.andWhere('appointment.appointmentDate = :date', { date });
+    }
+
+    if (archivedOnly) {
+      qb.andWhere('appointment.isArchived = :archivedOnly', { archivedOnly: true });
     }
 
     const [appointments, total] = await qb.getManyAndCount();
@@ -83,17 +111,11 @@ export class AppointmentsService {
 
   public async findOneInOrganization(id: number, organizationId: number): Promise<Appointment> {
     const entity = await this.appointmentRepo.findOne({
-      where: { id },
+      where: { id, organizationId },
     });
     if (!entity) {
-      throw new NotFoundException(`Appointment with ID ${id} not found`);
-    }
-    const employee = await this.employeeRepo.findOne({
-      where: { id: entity.employeeId, organizationId },
-    });
-    if (!employee || employee.organizationId !== organizationId) {
       throw new NotFoundException(
-        `Appointment with ID ${id} does not belong to organization ${organizationId}`,
+        `Appointment with ID ${id} not found or does not belong to organization ${organizationId}`,
       );
     }
     return entity;
@@ -156,7 +178,9 @@ export class AppointmentsService {
       throw new BadRequestException('This time slot is not available');
     }
 
+    // Create entity with organizationId from the employee
     const entity = this.appointmentRepo.create(createDto);
+    entity.organizationId = employee.organizationId;
     return this.appointmentRepo.save(entity);
   }
 
@@ -208,9 +232,9 @@ export class AppointmentsService {
     let queryBuilder = this.appointmentRepo
       .createQueryBuilder()
       .update(Appointment)
-      .set({ status: AppointmentStatus.ARCHIVED })
-      .where('status != :archivedStatus', {
-        archivedStatus: AppointmentStatus.ARCHIVED,
+      .set({ isArchived: true })
+      .where('isArchived != :archivedStatus', {
+        archivedStatus: true,
       })
       .andWhere(
         '(appointmentDate < :currentDate OR ' +
@@ -218,12 +242,9 @@ export class AppointmentsService {
         { currentDate, currentTime },
       );
 
-    // If organizationId is provided, filter by organization through employee relationship
+    // If organizationId is provided, filter by organization directly
     if (organizationId !== undefined) {
-      queryBuilder = queryBuilder.andWhere(
-        'employeeId IN (SELECT id FROM "employee" WHERE "organizationId" = :organizationId)',
-        { organizationId },
-      );
+      queryBuilder = queryBuilder.andWhere('organizationId = :organizationId', { organizationId });
     }
 
     const updateResult = await queryBuilder.execute();

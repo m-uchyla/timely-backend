@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Request } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { PanelService } from './Panel.service';
 import { PanelResponse } from './types/ApiResponses';
@@ -11,7 +11,6 @@ import { AppointmentPanelItem } from './types/ApiResponses';
 export class PanelController {
   constructor(private readonly svc: PanelService) {}
 
-  // eslint-disable-next-line @typescript-eslint/max-params
   @Get('appointments')
   @ApiOperation({
     summary: 'Retrieve all appointments with pagination, including appointment details',
@@ -35,16 +34,23 @@ export class PanelController {
     description: 'Filter by appointment status',
   })
   @ApiQuery({
+    name: 'archivedOnly',
+    required: false,
+    type: Boolean,
+    description: 'Filter by archived status',
+  })
+  @ApiQuery({
     name: 'date',
     required: false,
     type: String,
     description: 'Filter by appointment date',
   })
-  public findAllAppointments(
+  public async findAllAppointments(
     @Request() req: { user: { organizationId: number } },
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('status') status?: string,
+    @Query('archivedOnly') archivedOnly = false,
     @Query('date') date?: string,
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     let pageNumber = parseInt(page, 10);
@@ -62,6 +68,102 @@ export class PanelController {
       limitNumber,
       statuses,
       date,
+      archivedOnly,
     );
+  }
+
+  @Patch('appointments/:id/confirm')
+  @ApiOperation({
+    summary: 'Confirm an appointment',
+    description: 'Change the status of an appointment from pending to confirmed',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the appointment to confirm',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment confirmed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Appointment not found or does not belong to organization',
+  })
+  public async confirmAppointment(
+    @Request() req: { user: { organizationId: number } },
+    @Param('id') appointmentId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    const id = parseInt(appointmentId, 10);
+    if (isNaN(id)) {
+      return {
+        success: false,
+        message: 'Invalid appointment ID',
+      };
+    }
+
+    return this.svc.confirmAppointment(id, req.user.organizationId);
+  }
+
+  @Patch('appointments/:id/decline')
+  @ApiOperation({
+    summary: 'Decline an appointment',
+    description: 'Change the status of an appointment from pending to declined',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the appointment to decline',
+    type: Number,
+  })
+  @ApiBody({
+    description: 'Optional cancellation reason',
+    required: false,
+    schema: {
+      type: 'object',
+      properties: {
+        cancellationReason: {
+          type: 'string',
+          description: 'Reason for declining the appointment',
+          example: 'Customer requested to reschedule',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Appointment declined successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Appointment not found or does not belong to organization',
+  })
+  public async declineAppointment(
+    @Request() req: { user: { organizationId: number } },
+    @Param('id') appointmentId: string,
+    @Body() body?: { cancellationReason?: string },
+  ): Promise<{ success: boolean; message: string }> {
+    const id = parseInt(appointmentId, 10);
+    if (isNaN(id)) {
+      return {
+        success: false,
+        message: 'Invalid appointment ID',
+      };
+    }
+
+    return this.svc.declineAppointment(id, req.user.organizationId, body?.cancellationReason);
   }
 }

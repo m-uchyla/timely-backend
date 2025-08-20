@@ -1,14 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { AppointmentStatus } from '../Appointments/Appointment.entity';
 import { AppointmentsService } from '../Appointments/Appointments.service';
 import { ClientsService } from '../Clients/Clients.service';
 import { EmployeesService } from '../Employees/Employees.service';
 import { ServicesService } from '../Services/Services.service';
-import { PanelResponse } from './types/ApiResponses';
-import { AppointmentPanelItem } from './types/ApiResponses';
+import { AppointmentPanelItem, PanelResponse } from './types/ApiResponses';
 
 @Injectable()
 export class PanelService {
-  // eslint-disable-next-line @typescript-eslint/max-params
   constructor(
     private readonly servicesService: ServicesService,
     private readonly employeesService: EmployeesService,
@@ -22,20 +21,23 @@ export class PanelService {
     limit = 10,
     statuses: string[] = [],
     date?: string,
+    archivedOnly?: boolean,
   ): Promise<PanelResponse<AppointmentPanelItem[]>> {
     // Apply pagination at database level
     const skip = (page - 1) * limit;
 
     await this.appointmentsService.checkForArchiving(organizationId);
 
-    // Get paginated appointments and total count in parallel
-    const { appointments, total } = await this.appointmentsService.findByOrganizationPaginated(
-      organizationId,
-      skip,
-      limit,
-      statuses,
-      date,
-    );
+    // Get paginated appointments with relations loaded in one query
+    const { appointments, total } =
+      await this.appointmentsService.findByOrganizationPaginatedWithRelations(
+        organizationId,
+        skip,
+        limit,
+        statuses,
+        date,
+        archivedOnly,
+      );
 
     if (!appointments || appointments.length === 0) {
       return {
@@ -52,39 +54,19 @@ export class PanelService {
       };
     }
 
-    const servicesIds = appointments.map((appointment) => appointment.serviceId);
-    const services = await this.servicesService.findServicesByIds(servicesIds);
-    if (!services || services.length === 0) {
-      throw new NotFoundException(`No services found for organization ID ${organizationId}`);
-    }
-    const serviceMap = new Map(services.map((service) => [service.id, service]));
-
-    const employeesIds = appointments.map((appointment) => appointment.employeeId);
-    const employees = await this.employeesService.findEmployeesByIds(employeesIds);
-    if (!employees || employees.length === 0) {
-      throw new NotFoundException(`No employees found for organization ID ${organizationId}`);
-    }
-    const employeeMap = new Map(employees.map((emp) => [emp.id, emp]));
-
-    const clientsIds = appointments.map((appointment) => appointment.clientId);
-    const clients = await this.clientsService.findClientsByIds(clientsIds);
-    if (!clients || clients.length === 0) {
-      throw new NotFoundException(`No clients found for organization ID ${organizationId}`);
-    }
-    const clientMap = new Map(clients.map((client) => [client.id, client]));
-
+    // No need for separate service calls - relations are already loaded
     const panelItems = appointments.map((appointment) => {
-      const service = serviceMap.get(appointment.serviceId);
+      // Relations are already loaded, so we can access them directly
+      const { service, employee, client } = appointment;
+
       if (!service) {
         throw new NotFoundException(`Service with ID ${appointment.serviceId} not found`);
       }
 
-      const employee = employeeMap.get(appointment.employeeId);
       if (!employee) {
         throw new NotFoundException(`Employee with ID ${appointment.employeeId} not found`);
       }
 
-      const client = clientMap.get(appointment.clientId);
       if (!client) {
         throw new NotFoundException(`Client with ID ${appointment.clientId} not found`);
       }
@@ -96,6 +78,7 @@ export class PanelService {
         startTime: appointment.startTime,
         endTime: appointment.endTime,
         status: appointment.status,
+        isArchived: appointment.isArchived,
         notes: appointment.notes,
         cancellationReason: appointment.cancellationReason,
         price: appointment.price,
@@ -129,6 +112,72 @@ export class PanelService {
         hasNext: page < Math.ceil(total / limit),
         hasPrevious: page > 1,
       },
+    };
+  }
+
+  public async confirmAppointment(
+    appointmentId: number,
+    organizationId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    // First verify the appointment exists and belongs to the organization
+    const appointment = await this.appointmentsService.findOneInOrganization(
+      appointmentId,
+      organizationId,
+    );
+
+    if (appointment.status !== AppointmentStatus.PENDING) {
+      return {
+        success: false,
+        message: 'Cannot confirm an appointment that is not pending',
+      };
+    }
+
+    // Update the appointment status to confirmed
+    await this.appointmentsService.update(appointmentId, {
+      status: AppointmentStatus.CONFIRMED,
+    });
+
+    return {
+      success: true,
+      message: 'Appointment confirmed successfully',
+    };
+  }
+
+  public async declineAppointment(
+    appointmentId: number,
+    organizationId: number,
+    cancellationReason?: string,
+  ): Promise<{ success: boolean; message: string }> {
+    // First verify the appointment exists and belongs to the organization
+    const appointment = await this.appointmentsService.findOneInOrganization(
+      appointmentId,
+      organizationId,
+    );
+
+    if (
+      appointment.status !== AppointmentStatus.PENDING &&
+      appointment.status !== AppointmentStatus.CONFIRMED
+    ) {
+      return {
+        success: false,
+        message: 'Cannot decline an appointment that is not pending or confirmed',
+      };
+    }
+
+    // Update the appointment status to declined with optional cancellation reason
+    const updateData: { status: AppointmentStatus; cancellationReason?: string } = {
+      status: AppointmentStatus.DECLINED,
+    };
+
+    if (cancellationReason) {
+      updateData.cancellationReason = cancellationReason;
+    }
+
+    await this.appointmentsService.update(appointmentId, updateData);
+
+    return {
+      success: true,
+      message: 'Appointment declined successfully',
     };
   }
 }
