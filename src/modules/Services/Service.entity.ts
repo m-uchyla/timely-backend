@@ -23,13 +23,6 @@ export class Service {
   @ApiProperty({ description: 'The duration of the service in minutes', example: 120 })
   public durationMinutes: number;
 
-  @Column({ default: 0 })
-  @ApiProperty({
-    description: 'The pause period in minutes between services',
-    example: 15,
-  })
-  public pausePeriodMinutes: number;
-
   @Column({ default: true })
   @ApiProperty({ description: 'Indicates if the service is active', example: true })
   public isActive: boolean;

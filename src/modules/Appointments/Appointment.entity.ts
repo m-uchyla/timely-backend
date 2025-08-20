@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { ApiProperty } from '@nestjs/swagger';
 import { Client } from '../Clients/Client.entity';
 import { Employee } from '../Employees/Employee.entity';
+import { Organization } from '../Organizations/Organization.entity';
 import { Service } from '../Services/Service.entity';
 
 export enum AppointmentStatus {
@@ -9,7 +10,6 @@ export enum AppointmentStatus {
   CONFIRMED = 'confirmed',
   DECLINED = 'declined',
   CANCELLED = 'cancelled',
-  ARCHIVED = 'archived',
 }
 
 @Entity()
@@ -42,6 +42,10 @@ export class Appointment {
   @Column({ default: AppointmentStatus.PENDING, type: 'enum', enum: AppointmentStatus })
   @ApiProperty({ description: 'Indicates the appointment status', example: 'pending' })
   public status: AppointmentStatus;
+
+  @Column({ type: 'boolean', default: false })
+  @ApiProperty({ description: 'Indicates whether the appointment is archived', example: false })
+  public isArchived: boolean;
 
   @Column({ nullable: true })
   @ApiProperty({
@@ -122,4 +126,19 @@ export class Appointment {
     example: 1,
   })
   public clientId: number;
+
+  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'organizationId', referencedColumnName: 'id' })
+  @ApiProperty({
+    description: 'The organization associated with the appointment',
+    type: () => Organization,
+  })
+  public organization: Organization;
+
+  @Column()
+  @ApiProperty({
+    description: 'The ID of the organization associated with the appointment',
+    example: 1,
+  })
+  public organizationId: number;
 }

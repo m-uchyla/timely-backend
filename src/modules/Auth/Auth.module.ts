@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Organization } from '../Organizations/Organization.entity';
 import { UsersModule } from '../Users/Users.module';
 import { AuthController } from './Auth.controller';
 import { AuthService } from './Auth.service';
@@ -9,6 +11,7 @@ import { JwtStrategy } from './JwtStrategy';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Organization]),
     UsersModule,
     PassportModule,
     ConfigModule,
@@ -24,5 +27,6 @@ import { JwtStrategy } from './JwtStrategy';
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
+  exports: [AuthService], // Export AuthService so other modules can use getUserOrganizationId
 })
 export class AuthModule {}

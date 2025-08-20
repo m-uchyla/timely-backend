@@ -5,6 +5,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { User } from '../Users/User.entity';
 import { UsersService } from '../Users/Users.service';
 
+interface UserWithOrganization extends User {
+  organizationId: number;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
@@ -18,11 +22,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  public async validate(payload: { sub: number; username: string; role: string }): Promise<User> {
+  public async validate(payload: {
+    sub: number;
+    username: string;
+    role: string;
+    organizationId: number;
+  }): Promise<UserWithOrganization> {
     const user = await this.usersService.findOne(payload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return user; // Attach user to the request object
+    // Attach organizationId to the user object
+    (user as UserWithOrganization).organizationId = payload.organizationId;
+    return user as UserWithOrganization;
   }
 }

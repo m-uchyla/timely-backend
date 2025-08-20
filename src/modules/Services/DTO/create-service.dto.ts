@@ -26,15 +26,6 @@ export class CreateServiceDto {
   })
   public durationMinutes: number;
 
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  @ApiProperty({
-    description: 'The pause period in minutes between services. Optional',
-    example: 15,
-  })
-  public pausePeriodMinutes?: number;
-
   @IsBoolean()
   @IsOptional()
   @ApiProperty({
