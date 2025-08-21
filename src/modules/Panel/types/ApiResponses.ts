@@ -1,3 +1,5 @@
+import { User } from 'src/modules/Users/User.entity';
+
 export type Pagination = {
   page: number;
   totalPages: number;
@@ -39,4 +41,16 @@ export type AppointmentPanelItem = {
     email: string;
     phone: string;
   };
+};
+
+export type AuthenticatedUser = User & { organizationId: number };
+
+export type PanelInfo = {
+  userID: number;
+  firstName: string;
+  lastName: string;
+  organizationID: number;
+  organizationName: string;
+  notificationsNumber: number;
+  pendingNumber: number;
 };

@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Employee } from '../Employees/Employee.entity';
 import { Schedule } from '../Schedules/Schedule.entity';
 import { Service } from '../Services/Service.entity';
-import { Appointment } from './Appointment.entity';
+import { Appointment, AppointmentStatus } from './Appointment.entity';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
@@ -99,6 +99,13 @@ export class AppointmentsService {
       appointments,
       total,
     };
+  }
+
+  public async countPendingAppointments(organizationId: number): Promise<number> {
+    const count = await this.appointmentRepo.count({
+      where: { organizationId, status: AppointmentStatus.PENDING, isArchived: false },
+    });
+    return count;
   }
 
   public async findOne(id: number): Promise<Appointment> {

@@ -3,8 +3,14 @@ import { AppointmentStatus } from '../Appointments/Appointment.entity';
 import { AppointmentsService } from '../Appointments/Appointments.service';
 import { ClientsService } from '../Clients/Clients.service';
 import { EmployeesService } from '../Employees/Employees.service';
+import { OrganizationsService } from '../Organizations/Organizations.service';
 import { ServicesService } from '../Services/Services.service';
-import { AppointmentPanelItem, PanelResponse } from './types/ApiResponses';
+import {
+  AppointmentPanelItem,
+  AuthenticatedUser,
+  PanelInfo,
+  PanelResponse,
+} from './types/ApiResponses';
 
 @Injectable()
 export class PanelService {
@@ -13,7 +19,24 @@ export class PanelService {
     private readonly employeesService: EmployeesService,
     private readonly appointmentsService: AppointmentsService,
     private readonly clientsService: ClientsService,
+    private readonly organizationsService: OrganizationsService,
   ) {}
+
+  public async getPanelInfo(user: AuthenticatedUser): Promise<PanelInfo> {
+    const organization = await this.organizationsService.findOne(user.organizationId);
+    const pendingNumber = await this.appointmentsService.countPendingAppointments(
+      user.organizationId,
+    );
+    return {
+      userID: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      organizationID: user.organizationId,
+      organizationName: organization.name,
+      notificationsNumber: 0,
+      pendingNumber,
+    };
+  }
 
   public async listAppointments(
     organizationId: number,

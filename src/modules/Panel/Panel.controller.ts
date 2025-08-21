@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/com
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { PanelService } from './Panel.service';
-import { PanelResponse } from './types/ApiResponses';
+import { AuthenticatedUser, PanelInfo, PanelResponse } from './types/ApiResponses';
 import { AppointmentPanelItem } from './types/ApiResponses';
 
 @ApiTags('Panel')
@@ -10,6 +10,14 @@ import { AppointmentPanelItem } from './types/ApiResponses';
 @Controller('panel')
 export class PanelController {
   constructor(private readonly svc: PanelService) {}
+
+  @Get('info')
+  @ApiOperation({
+    summary: 'Retrieve panel information',
+  })
+  public async getPanelInfo(@Request() req: { user: AuthenticatedUser }): Promise<PanelInfo> {
+    return this.svc.getPanelInfo(req.user);
+  }
 
   @Get('appointments')
   @ApiOperation({
@@ -46,7 +54,7 @@ export class PanelController {
     description: 'Filter by appointment date',
   })
   public async findAllAppointments(
-    @Request() req: { user: { organizationId: number } },
+    @Request() req: { user: AuthenticatedUser },
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('status') status?: string,
@@ -98,7 +106,7 @@ export class PanelController {
     description: 'Appointment not found or does not belong to organization',
   })
   public async confirmAppointment(
-    @Request() req: { user: { organizationId: number } },
+    @Request() req: { user: AuthenticatedUser },
     @Param('id') appointmentId: string,
   ): Promise<{ success: boolean; message: string }> {
     const id = parseInt(appointmentId, 10);
@@ -152,7 +160,7 @@ export class PanelController {
     description: 'Appointment not found or does not belong to organization',
   })
   public async declineAppointment(
-    @Request() req: { user: { organizationId: number } },
+    @Request() req: { user: AuthenticatedUser },
     @Param('id') appointmentId: string,
     @Body() body?: { cancellationReason?: string },
   ): Promise<{ success: boolean; message: string }> {
