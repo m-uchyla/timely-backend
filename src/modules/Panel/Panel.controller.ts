@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
+import { Employee } from '../Employees/Employee.entity';
 import { PanelService } from './Panel.service';
 import { AuthenticatedUser, PanelInfo, PanelResponse } from './types/ApiResponses';
 import { AppointmentPanelItem } from './types/ApiResponses';
@@ -77,6 +78,60 @@ export class PanelController {
       statuses,
       date,
       archivedOnly,
+    );
+  }
+
+  @Get('employees')
+  @ApiOperation({
+    summary: 'Retrieve employees from the organization with pagination and filtering',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+    description: 'Filter by employee first name or last name',
+  })
+  @ApiQuery({
+    name: 'activeOnly',
+    required: false,
+    type: Boolean,
+    description: 'Filter to show only active employees',
+  })
+  public async findAllEmployees(
+    @Request() req: { user: AuthenticatedUser },
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('name') nameFilter?: string,
+    @Query('activeOnly') activeOnly?: boolean,
+  ): Promise<PanelResponse<Employee[]>> {
+    let pageNumber = parseInt(page, 10);
+    let limitNumber = parseInt(limit, 10);
+    
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      pageNumber = 1;
+    }
+    if (isNaN(limitNumber) || limitNumber < 1 || limitNumber > 100) {
+      limitNumber = 10;
+    }
+    
+    return this.svc.listEmployees(
+      req.user.organizationId,
+      pageNumber,
+      limitNumber,
+      nameFilter,
+      activeOnly,
     );
   }
 

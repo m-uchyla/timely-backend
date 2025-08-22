@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AppointmentStatus } from '../Appointments/Appointment.entity';
 import { AppointmentsService } from '../Appointments/Appointments.service';
 import { ClientsService } from '../Clients/Clients.service';
+import { Employee } from '../Employees/Employee.entity';
 import { EmployeesService } from '../Employees/Employees.service';
 import { OrganizationsService } from '../Organizations/Organizations.service';
 import { ServicesService } from '../Services/Services.service';
@@ -201,6 +202,53 @@ export class PanelService {
     return {
       success: true,
       message: 'Appointment declined successfully',
+    };
+  }
+
+  public async listEmployees(
+    organizationId: number,
+    page: number,
+    limit: number,
+    nameFilter?: string,
+    activeOnly?: boolean,
+  ): Promise<PanelResponse<Employee[]>> {
+    const queryBuilder = this.employeesService['employeeRepo']
+    const queryBuilder = this.employeesService.getEmployeeQueryBuilder('employee')
+      .where('employee.organizationId = :organizationId', { organizationId });
+
+    // Apply name filter
+    if (nameFilter) {
+      queryBuilder.andWhere(
+        '(LOWER(employee.firstName) LIKE LOWER(:nameFilter) OR LOWER(employee.lastName) LIKE LOWER(:nameFilter))',
+        { nameFilter: `%${nameFilter}%` },
+      );
+    }
+
+    // Apply active filter
+    if (activeOnly !== undefined) {
+      queryBuilder.andWhere('employee.isActive = :activeOnly', { activeOnly });
+    }
+
+    // Add ordering
+    queryBuilder.orderBy('employee.firstName', 'ASC').addOrderBy('employee.lastName', 'ASC');
+
+    // Apply pagination
+    const skip = (page - 1) * limit;
+    queryBuilder.skip(skip).take(limit);
+
+    const [employees, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: employees,
+      pagination: {
+        page,
+        totalPages: Math.ceil(total / limit),
+        limit,
+        total,
+        items: employees.length,
+        hasNext: page < Math.ceil(total / limit),
+        hasPrevious: page > 1,
+      },
     };
   }
 }
