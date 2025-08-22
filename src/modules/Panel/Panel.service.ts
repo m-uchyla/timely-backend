@@ -213,7 +213,7 @@ export class PanelService {
     activeOnly?: boolean,
   ): Promise<PanelResponse<Employee[]>> {
     const queryBuilder = this.employeesService['employeeRepo']
-      .createQueryBuilder('employee')
+    const queryBuilder = this.employeesService.getEmployeeQueryBuilder('employee')
       .where('employee.organizationId = :organizationId', { organizationId });
 
     // Apply name filter
