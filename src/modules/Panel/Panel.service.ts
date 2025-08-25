@@ -1,4 +1,6 @@
+import { Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { AppointmentStatus } from '../Appointments/Appointment.entity';
 import { AppointmentsService } from '../Appointments/Appointments.service';
 import { ClientsService } from '../Clients/Clients.service';
@@ -21,6 +23,8 @@ export class PanelService {
     private readonly appointmentsService: AppointmentsService,
     private readonly clientsService: ClientsService,
     private readonly organizationsService: OrganizationsService,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
   ) {}
 
   public async getPanelInfo(user: AuthenticatedUser): Promise<PanelInfo> {
@@ -212,8 +216,8 @@ export class PanelService {
     nameFilter?: string,
     activeOnly?: boolean,
   ): Promise<PanelResponse<Employee[]>> {
-    const queryBuilder = this.employeesService['employeeRepo']
-    const queryBuilder = this.employeesService.getEmployeeQueryBuilder('employee')
+    const queryBuilder = this.employeeRepository
+      .createQueryBuilder('employee')
       .where('employee.organizationId = :organizationId', { organizationId });
 
     // Apply name filter
