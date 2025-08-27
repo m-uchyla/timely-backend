@@ -1,32 +1,40 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Request } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public, Role, Roles } from '../Auth/Roles';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role, Roles } from '../Auth/Roles';
 import { Appointment as AppointmentEntity } from './Appointment.entity';
 import { AppointmentsService } from './Appointments.service';
 import { CreateAppointmentDto } from './DTO/create-appointment.dto';
 import { UpdateAppointmentDto } from './DTO/update-appointment.dto';
 
 @ApiTags('Appointments')
-@Roles(Role.ADMIN, Role.OWNER)
+@Roles(Role.ADMIN)
 @Controller('appointments')
 export class AppointmentsController {
   constructor(private readonly svc: AppointmentsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Retrieve all appointments for the logged-in user organization' })
+  @ApiOperation({ summary: 'Retrieve all appointments' })
   @ApiResponse({
     status: 200,
-    description: 'List of all organization appointments',
+    description: 'List of all appointments',
     type: [AppointmentEntity],
   })
-  public findAll(
-    @Request() req: { user: { organizationId: number } },
-  ): Promise<AppointmentEntity[]> {
-    return this.svc.findByOrganization(req.user.organizationId);
+  public findAll(): Promise<AppointmentEntity[]> {
+    return this.svc.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Retrieve an appointment by ID for the logged-in user organization' })
+  @ApiOperation({ summary: 'Retrieve an appointment by ID' })
   @ApiParam({
     name: 'id',
     description: 'The ID of the appointment to retrieve',
@@ -41,17 +49,12 @@ export class AppointmentsController {
     status: 404,
     description: 'Appointment not found',
   })
-  public findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @Request() req: { user: { organizationId: number } },
-  ): Promise<AppointmentEntity> {
-    return this.svc.findOneInOrganization(id, req.user.organizationId);
+  public findOne(@Param('id', ParseIntPipe) id: number): Promise<AppointmentEntity> {
+    return this.svc.findOne(id);
   }
 
   @Get('employee/:employeeId')
-  @ApiOperation({
-    summary: 'Retrieve all appointments for a specific employee in logged-in user organization',
-  })
+  @ApiOperation({ summary: 'Retrieve all appointments for a specific employee' })
   @ApiParam({
     name: 'employeeId',
     description: 'The ID of the employee whose appointments to retrieve',
@@ -68,13 +71,11 @@ export class AppointmentsController {
   })
   public findAllByEmployee(
     @Param('employeeId', ParseIntPipe) employeeId: number,
-    @Request() req: { user: { organizationId: number } },
   ): Promise<AppointmentEntity[]> {
-    return this.svc.findAllByEmployeeOrganization(employeeId, req.user.organizationId);
+    return this.svc.findAllByEmployee(employeeId);
   }
 
   @Post()
-  @Public()
   @ApiOperation({ summary: 'Create a new appointment' })
   @ApiResponse({
     status: 201,
@@ -90,7 +91,6 @@ export class AppointmentsController {
   }
 
   @Put(':id')
-  @Public()
   @ApiOperation({ summary: 'Update an existing appointment' })
   @ApiParam({
     name: 'id',
@@ -111,5 +111,54 @@ export class AppointmentsController {
     @Body() updateDto: UpdateAppointmentDto,
   ): Promise<AppointmentEntity> {
     return this.svc.update(id, updateDto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete an appointment by ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the appointment to delete',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'The appointment has been successfully deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Appointment not found',
+  })
+  public remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.svc.remove(id);
+  }
+
+  @Post('archive-expired')
+  @ApiOperation({ summary: 'Archive all expired appointments' })
+  @ApiQuery({
+    name: 'organizationId',
+    required: false,
+    description:
+      'Optional organization ID to filter appointments. If not provided, archives all expired appointments across all organizations.',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Expired appointments have been successfully archived',
+    schema: {
+      type: 'object',
+      properties: {
+        archivedCount: {
+          type: 'number',
+          description: 'Number of appointments that were archived',
+          example: 5,
+        },
+      },
+    },
+  })
+  public archiveExpired(@Query('organizationId') organizationId?: string): Promise<{
+    archivedCount: number;
+  }> {
+    const orgId = organizationId ? parseInt(organizationId, 10) : undefined;
+    return this.svc.checkForArchiving(orgId);
   }
 }

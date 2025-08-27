@@ -6,12 +6,11 @@ import { Service } from '../Services/Service.entity';
 import { Appointment } from './Appointment.entity';
 import { AppointmentsController } from './Appointments.controller';
 import { AppointmentsService } from './Appointments.service';
-import { AppointmentsAdminController } from './AppointmentsAdmin.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Appointment, Employee, Service, Schedule])],
   providers: [AppointmentsService],
-  controllers: [AppointmentsController, AppointmentsAdminController],
+  controllers: [AppointmentsController],
   exports: [AppointmentsService],
 })
 export class AppointmentsModule {}
