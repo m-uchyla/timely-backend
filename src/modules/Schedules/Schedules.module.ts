@@ -4,11 +4,10 @@ import { Employee } from '../Employees/Employee.entity';
 import { Schedule } from './Schedule.entity';
 import { SchedulesController } from './Schedules.controller';
 import { SchedulesService } from './Schedules.service';
-import { SchedulesAdminController } from './SchedulesAdmin.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Schedule, Employee])],
   providers: [SchedulesService],
-  controllers: [SchedulesController, SchedulesAdminController],
+  controllers: [SchedulesController],
 })
 export class SchedulesModule {}
