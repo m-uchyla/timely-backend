@@ -4,12 +4,11 @@ import { Organization } from '../Organizations/Organization.entity';
 import { Employee } from './Employee.entity';
 import { EmployeesController } from './Employees.controller';
 import { EmployeesService } from './Employees.service';
-import { EmployeesAdminController } from './EmployeesAdmin.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Employee, Organization])],
   providers: [EmployeesService],
-  controllers: [EmployeesController, EmployeesAdminController],
+  controllers: [EmployeesController],
   exports: [EmployeesService],
 })
 export class EmployeesModule {}
