@@ -54,3 +54,17 @@ export type PanelInfo = {
   notificationsNumber: number;
   pendingNumber: number;
 };
+
+export type EmployeePanelItem = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  isActive: boolean;
+  schedules: {
+    id: number;
+    dayOfWeek: number;
+    startTime: string;
+    endTime: string;
+    isActive: boolean;
+  }[];
+};
