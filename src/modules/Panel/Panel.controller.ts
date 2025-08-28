@@ -3,7 +3,12 @@ import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from 
 import { Role, Roles } from '../Auth/Roles';
 import { Employee } from '../Employees/Employee.entity';
 import { PanelService } from './Panel.service';
-import { AuthenticatedUser, PanelInfo, PanelResponse } from './types/ApiResponses';
+import {
+  AuthenticatedUser,
+  EmployeePanelItem,
+  PanelInfo,
+  PanelResponse,
+} from './types/ApiResponses';
 import { AppointmentPanelItem } from './types/ApiResponses';
 
 @ApiTags('Panel')
@@ -97,25 +102,11 @@ export class PanelController {
     type: Number,
     description: 'Items per page (default: 10)',
   })
-  @ApiQuery({
-    name: 'name',
-    required: false,
-    type: String,
-    description: 'Filter by employee first name or last name',
-  })
-  @ApiQuery({
-    name: 'activeOnly',
-    required: false,
-    type: Boolean,
-    description: 'Filter to show only active employees',
-  })
   public async findAllEmployees(
     @Request() req: { user: AuthenticatedUser },
     @Query('page') page = '1',
     @Query('limit') limit = '10',
-    @Query('name') nameFilter?: string,
-    @Query('activeOnly') activeOnly?: boolean,
-  ): Promise<PanelResponse<Employee[]>> {
+  ): Promise<PanelResponse<EmployeePanelItem[]>> {
     let pageNumber = parseInt(page, 10);
     let limitNumber = parseInt(limit, 10);
 
@@ -126,13 +117,7 @@ export class PanelController {
       limitNumber = 10;
     }
 
-    return this.svc.listEmployees(
-      req.user.organizationId,
-      pageNumber,
-      limitNumber,
-      nameFilter,
-      activeOnly,
-    );
+    return this.svc.listEmployees(req.user.organizationId, pageNumber, limitNumber);
   }
 
   @Patch('appointments/:id/confirm')

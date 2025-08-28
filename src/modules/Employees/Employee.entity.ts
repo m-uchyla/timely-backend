@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Organization } from '../Organizations/Organization.entity';
+import { Schedule } from '../Schedules/Schedule.entity';
 
 @Entity()
 export class Employee {
@@ -48,4 +49,11 @@ export class Employee {
     type: () => Organization,
   })
   public organization: Organization;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.employee)
+  @ApiProperty({
+    description: 'The schedules associated with the employee',
+    type: () => [Schedule],
+  })
+  public schedule: Schedule[];
 }

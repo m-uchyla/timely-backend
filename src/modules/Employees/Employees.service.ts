@@ -2,6 +2,7 @@ import { In, Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Organization } from '../Organizations/Organization.entity';
+import { EmployeePanelItem, PanelResponse } from '../Panel/types/ApiResponses';
 import { CreateEmployeeDto } from './DTO/create-employee.dto';
 import { UpdateEmployeeDto } from './DTO/update-employee.dto';
 import { Employee } from './Employee.entity';
@@ -107,5 +108,63 @@ export class EmployeesService {
       throw new NotFoundException(`Organization with ID ${orgId} not found`);
     }
     return this.employeeRepo.find({ where: { organizationId: orgId } });
+  }
+
+  public async findByOrganizationWithSchedulePaginated(
+    organizationId: number,
+    skip: number,
+    limit: number,
+  ): Promise<{ data: EmployeePanelItem[]; total: number }> {
+    const total = await this.employeeRepo.count({
+      where: { organizationId },
+    });
+
+    // 2. Znajdź tylko ID pracowników dla bieżącej strony paginacji
+    // To zapytanie jest proste, bez JOIN-ów, więc paginacja działa poprawnie.
+    const employeeIdsQuery = this.employeeRepo
+      .createQueryBuilder('employee')
+      .select('employee.id')
+      .where('employee.organizationId = :organizationId', { organizationId })
+      .orderBy('employee.createdAt', 'ASC')
+      .addOrderBy('employee.lastName', 'ASC')
+      .skip(skip)
+      .take(limit);
+
+    const rawEmployees: { employee_id: number }[] = await employeeIdsQuery.getRawMany();
+    const employeeIds = rawEmployees.map((employee) => employee.employee_id);
+
+    if (employeeIds.length === 0) {
+      return { data: [], total };
+    }
+
+    const employeesWithSchedules = await this.employeeRepo
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.schedule', 'schedule')
+      .whereInIds(employeeIds)
+      .orderBy('employee.createdAt', 'ASC')
+      .addOrderBy('employee.lastName', 'ASC')
+      .addOrderBy('schedule.dayOfWeek', 'ASC')
+      .getMany();
+
+    const formattedEmployees: EmployeePanelItem[] = employeesWithSchedules.map((employee) => {
+      return {
+        id: employee.id,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        isActive: employee.isActive,
+        schedules: employee.schedule.map((sch) => ({
+          id: sch.id,
+          dayOfWeek: sch.dayOfWeek,
+          startTime: sch.startTime,
+          endTime: sch.endTime,
+          isActive: sch.isActive,
+        })),
+      };
+    });
+
+    return {
+      data: formattedEmployees,
+      total,
+    };
   }
 }

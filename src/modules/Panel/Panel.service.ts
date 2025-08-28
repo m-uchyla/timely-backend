@@ -11,6 +11,7 @@ import { ServicesService } from '../Services/Services.service';
 import {
   AppointmentPanelItem,
   AuthenticatedUser,
+  EmployeePanelItem,
   PanelInfo,
   PanelResponse,
 } from './types/ApiResponses';
@@ -213,43 +214,24 @@ export class PanelService {
     organizationId: number,
     page: number,
     limit: number,
-    nameFilter?: string,
-    activeOnly?: boolean,
-  ): Promise<PanelResponse<Employee[]>> {
-    const queryBuilder = this.employeeRepository
-      .createQueryBuilder('employee')
-      .where('employee.organizationId = :organizationId', { organizationId });
-
-    // Apply name filter
-    if (nameFilter) {
-      queryBuilder.andWhere(
-        '(LOWER(employee.firstName) LIKE LOWER(:nameFilter) OR LOWER(employee.lastName) LIKE LOWER(:nameFilter))',
-        { nameFilter: `%${nameFilter}%` },
-      );
-    }
-
-    // Apply active filter
-    if (activeOnly !== undefined) {
-      queryBuilder.andWhere('employee.isActive = :activeOnly', { activeOnly });
-    }
-
-    // Add ordering
-    queryBuilder.orderBy('employee.firstName', 'ASC').addOrderBy('employee.lastName', 'ASC');
-
-    // Apply pagination
+  ): Promise<PanelResponse<EmployeePanelItem[]>> {
     const skip = (page - 1) * limit;
-    queryBuilder.skip(skip).take(limit);
 
-    const [employees, total] = await queryBuilder.getManyAndCount();
+    await this.appointmentsService.checkForArchiving(organizationId);
+    const { data, total } = await this.employeesService.findByOrganizationWithSchedulePaginated(
+      organizationId,
+      skip,
+      limit,
+    );
 
     return {
-      data: employees,
+      data,
       pagination: {
         page,
         totalPages: Math.ceil(total / limit),
         limit,
         total,
-        items: employees.length,
+        items: data.length,
         hasNext: page < Math.ceil(total / limit),
         hasPrevious: page > 1,
       },
