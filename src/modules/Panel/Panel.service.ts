@@ -237,4 +237,32 @@ export class PanelService {
       },
     };
   }
+
+  public async listServices(
+    organizationId: number,
+    page: number,
+    limit: number,
+  ): Promise<PanelResponse<EmployeePanelItem[]>> {
+    const skip = (page - 1) * limit;
+
+    await this.appointmentsService.checkForArchiving(organizationId);
+    const { data, total } = await this.employeesService.findByOrganizationWithSchedulePaginated(
+      organizationId,
+      skip,
+      limit,
+    );
+
+    return {
+      data,
+      pagination: {
+        page,
+        totalPages: Math.ceil(total / limit),
+        limit,
+        total,
+        items: data.length,
+        hasNext: page < Math.ceil(total / limit),
+        hasPrevious: page > 1,
+      },
+    };
+  }
 }

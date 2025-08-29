@@ -120,6 +120,40 @@ export class PanelController {
     return this.svc.listEmployees(req.user.organizationId, pageNumber, limitNumber);
   }
 
+  @Get('services')
+  @ApiOperation({
+    summary: 'Retrieve services from the organization with pagination and filtering',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 10)',
+  })
+  public async findAllServices(
+    @Request() req: { user: AuthenticatedUser },
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+  ): Promise<PanelResponse<EmployeePanelItem[]>> {
+    let pageNumber = parseInt(page, 10);
+    let limitNumber = parseInt(limit, 10);
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      pageNumber = 1;
+    }
+    if (isNaN(limitNumber) || limitNumber < 1 || limitNumber > 100) {
+      limitNumber = 10;
+    }
+
+    return this.svc.listServices(req.user.organizationId, pageNumber, limitNumber);
+  }
+
   @Patch('appointments/:id/confirm')
   @ApiOperation({
     summary: 'Confirm an appointment',
