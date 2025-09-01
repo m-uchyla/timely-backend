@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, Roles } from '../Auth/Roles';
 import { Employee } from '../Employees/Employee.entity';
@@ -10,6 +10,8 @@ import {
   PanelResponse,
 } from './types/ApiResponses';
 import { AppointmentPanelItem } from './types/ApiResponses';
+import { Appointment } from '../Appointments/Appointment.entity';
+import { CreateAppointmentDto } from '../Appointments/DTO/create-appointment.dto';
 
 @ApiTags('Panel')
 @Roles(Role.ADMIN, Role.OWNER)
@@ -247,5 +249,20 @@ export class PanelController {
     }
 
     return this.svc.declineAppointment(id, req.user.organizationId, body?.cancellationReason);
+  }
+
+  @Post('appointment')
+  @ApiOperation({ summary: 'Create a new appointment' })
+  @ApiResponse({
+    status: 201,
+    description: 'The appointment has been successfully created',
+    type: Appointment,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input data',
+  })
+  public create(@Body() createDto: CreateAppointmentDto): Promise<Appointment> {
+    return this.svc.createAppointment(createDto);
   }
 }
