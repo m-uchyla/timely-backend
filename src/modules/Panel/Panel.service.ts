@@ -1,8 +1,9 @@
 import { Repository } from 'typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AppointmentStatus } from '../Appointments/Appointment.entity';
+import { Appointment, AppointmentStatus } from '../Appointments/Appointment.entity';
 import { AppointmentsService } from '../Appointments/Appointments.service';
+import { CreateAppointmentDto } from '../Appointments/DTO/create-appointment.dto';
 import { ClientsService } from '../Clients/Clients.service';
 import { Employee } from '../Employees/Employee.entity';
 import { EmployeesService } from '../Employees/Employees.service';
@@ -42,6 +43,10 @@ export class PanelService {
       notificationsNumber: 0,
       pendingNumber,
     };
+  }
+
+  public async createAppointment(createDto: CreateAppointmentDto): Promise<Appointment> {
+    throw new Error('Method not implemented.');
   }
 
   public async listAppointments(
